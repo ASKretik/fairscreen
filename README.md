@@ -150,7 +150,7 @@ cd backend
 
 ## Deploying
 
-**Frontend → GitHub Pages (automatic).** `.github/workflows/ci-deploy.yml` runs the backend and frontend tests on every push and pull request, and on `main` builds the frontend with the base path `/<repo>/` and deploys it to Pages (Settings ▸ Pages ▸ Source: GitHub Actions). `404.html` is a copy of `index.html`, so deep links such as `/demo` work.
+**Frontend → GitHub Pages (automatic).** `.github/workflows/ci-deploy.yml` runs the backend and frontend tests on every push and pull request, and on `main` builds the frontend with the base path `/<repo>/` and deploys it to Pages (Settings ▸ Pages ▸ Source: GitHub Actions). `404.html` (and `demo/index.html`, since `/demo` is also the folder holding the demo data) is a copy of `index.html`, so deep links work.
 
 **Backend → Render.** [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ASKretik/fairscreen), or New ▸ Blueprint ▸ this repo (`render.yaml`). Render asks for `GEMINI_API_KEY`, `GEMINI_PARSE_MODEL`, `GEMINI_EVAL_MODEL` and `FIREBASE_SERVICE_ACCOUNT_B64`; `ALLOWED_ORIGINS` already includes `https://askretik.github.io`. Check `https://<service>.onrender.com/health`.
 
