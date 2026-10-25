@@ -1,0 +1,35 @@
+# Render Blueprint for the FairScreen API (SPEC §3, §15). In Render: New > Blueprint > this repo.
+# Secrets use `sync: false`, so Render asks for their values in the dashboard; nothing secret is committed.
+services:
+  - type: web
+    name: fairscreen-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_PARSE_MODEL
+        sync: false
+      - key: GEMINI_EVAL_MODEL
+        sync: false
+      - key: GEMINI_EMBED_MODEL
+        value: gemini-embedding-001
+      - key: GEMINI_CONCURRENCY
+        value: "2"
+      - key: FIREBASE_SERVICE_ACCOUNT_B64
+        sync: false
+      # The GitHub Pages site (a CORS origin has no path) and local dev; add your Firebase Hosting URL if you use it.
+      - key: ALLOWED_ORIGINS
+        value: https://askretik.github.io,http://localhost:5173
+      - key: MAX_FILES_PER_UPLOAD
+        value: "20"
+      - key: MAX_FILE_MB
+        value: "5"
+      - key: MAX_CANDIDATES_PER_JOB
+        value: "50"

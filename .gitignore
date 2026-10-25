@@ -1,0 +1,26 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*service-account*.json
+*firebase-adminsdk*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Parse/embedding caches (contain identity from real resumes) and local run output
+.cache/
+
+# Raw Kaggle data
+backend/eval/data/
+
+# Node / Firebase
+node_modules/
+frontend/dist/
+.firebase/
+*.log
+
+.DS_Store

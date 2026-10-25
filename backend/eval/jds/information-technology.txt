@@ -1,0 +1,28 @@
+IT Systems Administrator
+
+About the role
+We are a 250-person logistics company looking for an IT Systems Administrator to keep our offices, warehouse and remote staff running. You will own our Windows server estate, user accounts, network and end-user support, and work with a small IT team of three.
+
+What you will do
+- Administer Windows Server, Active Directory, Group Policy, DNS and DHCP.
+- Manage Microsoft 365 (Exchange Online, Teams, SharePoint) and user onboarding and offboarding.
+- Maintain the LAN/WAN, firewalls, switches, Wi-Fi and VPN; troubleshoot connectivity issues.
+- Run our VMware virtual environment, backups and disaster-recovery tests.
+- Act as the escalation point for help-desk tickets and keep our ticketing system and documentation up to date.
+- Patch and secure servers and endpoints; support security audits.
+
+Requirements
+- 3+ years of experience in systems administration or IT support.
+- Hands-on experience administering Windows Server and Active Directory.
+- Solid understanding of networking fundamentals (TCP/IP, DNS, DHCP, VLANs).
+- Experience supporting end users and resolving hardware and software issues.
+- Experience with virtualization (VMware or Hyper-V).
+- Bachelor's degree in Information Technology, Computer Science or a related field, or equivalent experience.
+
+Nice to have
+- CompTIA A+, Network+ or Security+, or a Microsoft certification.
+- Scripting with PowerShell to automate admin tasks.
+- Experience with cloud platforms (Azure or AWS).
+- Familiarity with ITIL practices.
+
+We value clear communication and a calm approach to fixing problems under pressure.

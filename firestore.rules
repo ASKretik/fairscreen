@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /jobs/{jobId} {
+      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+      allow write: if false;
+      match /candidates/{candId} {
+        allow read: if request.auth != null
+          && get(/databases/$(database)/documents/jobs/$(jobId)).data.ownerUid == request.auth.uid;
+        allow write: if false;
+        match /private/{docId} {
+          allow read, write: if false;
+        }
+      }
+    }
+  }
+}

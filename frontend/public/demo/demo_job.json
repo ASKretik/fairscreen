@@ -1,0 +1,732 @@
+{
+  "placeholder": true,
+  "job": {
+    "id": "demo-job",
+    "title": "IT Systems Administrator (demo)",
+    "jdText": "IT Systems Administrator\n\nAbout the role\nWe are a 250-person logistics company looking for an IT Systems Administrator to keep our offices, warehouse and remote staff running. You will own our Windows server estate, user accounts, network and end-user support, and work with a small IT team of three.\n\nWhat you will do\n- Administer Windows Server, Active Directory, Group Policy, DNS and DHCP.\n- Manage Microsoft 365 (Exchange Online, Teams, SharePoint) and user onboarding and offboarding.\n- Maintain the LAN/WAN, firewalls, switches, Wi-Fi and VPN; troubleshoot connectivity issues.\n- Run our VMware virtual environment, backups and disaster-recovery tests.\n- Act as the escalation point for help-desk tickets and keep our ticketing system and documentation up to date.\n- Patch and secure servers and endpoints; support security audits.\n\nRequirements\n- 3+ years of experience in systems administration or IT support.\n- Hands-on experience administering Windows Server and Active Directory.\n- Solid understanding of networking fundamentals (TCP/IP, DNS, DHCP, VLANs).\n- Experience supporting end users and resolving hardware and software issues.\n- Experience with virtualization (VMware or Hyper-V).\n- Bachelor's degree in Information Technology, Computer Science or a related field, or equivalent experience.\n\nNice to have\n- CompTIA A+, Network+ or Security+, or a Microsoft certification.\n- Scripting with PowerShell to automate admin tasks.\n- Experience with cloud platforms (Azure or AWS).\n- Familiarity with ITIL practices.\n\nWe value clear communication and a calm approach to fixing problems under pressure.\n",
+    "requirements": {
+      "role_title": "IT Systems Administrator",
+      "must_have": [
+        {
+          "id": "m1",
+          "text": "3+ years in systems administration or IT support",
+          "kind": "experience"
+        },
+        {
+          "id": "m2",
+          "text": "Windows Server and Active Directory administration",
+          "kind": "skill"
+        },
+        {
+          "id": "m3",
+          "text": "Networking fundamentals (TCP/IP, DNS, DHCP, VLANs)",
+          "kind": "skill"
+        },
+        {
+          "id": "m4",
+          "text": "End-user hardware and software support",
+          "kind": "experience"
+        },
+        {
+          "id": "m5",
+          "text": "Virtualization (VMware or Hyper-V)",
+          "kind": "skill"
+        },
+        {
+          "id": "m6",
+          "text": "Bachelor's in IT, Computer Science or related field, or equivalent experience",
+          "kind": "education"
+        }
+      ],
+      "nice_to_have": [
+        {
+          "id": "n1",
+          "text": "CompTIA A+, Network+, Security+ or a Microsoft certification",
+          "kind": "certification"
+        },
+        {
+          "id": "n2",
+          "text": "PowerShell scripting",
+          "kind": "skill"
+        },
+        {
+          "id": "n3",
+          "text": "Azure or AWS",
+          "kind": "skill"
+        },
+        {
+          "id": "n4",
+          "text": "ITIL practices",
+          "kind": "other"
+        }
+      ],
+      "min_years_experience": 3.0,
+      "education_requirement": "Bachelor's in IT, Computer Science or related field, or equivalent experience"
+    },
+    "requirementsLocked": true,
+    "weights": {
+      "must": 0.5,
+      "nice": 0.2,
+      "semantic": 0.3
+    },
+    "counts": {
+      "total": 5,
+      "processing": 0,
+      "scored": 5,
+      "failed": 0,
+      "shortlisted": 2
+    },
+    "createdAt": "2026-10-25T18:00:00Z",
+    "updatedAt": "2026-10-25T18:20:00Z"
+  },
+  "candidates": [
+    {
+      "id": "c1",
+      "anonId": "CAND-3F9A",
+      "fileName": "resume_c1.pdf",
+      "status": "shortlisted",
+      "error": null,
+      "profile": {
+        "headline": "Systems administrator, 6 yrs, Windows Server/VMware/networking",
+        "education": [
+          {
+            "institution": "Eastfield State University",
+            "degree": "B.S.",
+            "field": "Information Technology",
+            "grade": "3.6 GPA",
+            "start_year": 2012,
+            "end_year": 2016
+          }
+        ],
+        "experience": [
+          {
+            "title": "Systems Administrator",
+            "organisation": "Northside Health Network",
+            "start": "2019-03",
+            "end": "present",
+            "months": 91,
+            "summary": "Administers Windows Server 2019/2022 and Active Directory for 900 users across 4 sites; led a VMware vSphere 7 migration of 60 servers."
+          },
+          {
+            "title": "IT Support Specialist",
+            "organisation": "Brightline Logistics",
+            "start": "2016-06",
+            "end": "2019-02",
+            "months": 32,
+            "summary": "Resolved hardware, software and network tickets; built imaging and onboarding checklists."
+          }
+        ],
+        "total_experience_months": 123,
+        "skills": [
+          "Windows Server",
+          "Active Directory",
+          "Group Policy",
+          "VMware vSphere",
+          "PowerShell",
+          "DNS",
+          "DHCP",
+          "VLANs",
+          "Microsoft 365"
+        ],
+        "projects": [
+          {
+            "title": "Account provisioning automation",
+            "summary": "PowerShell scripts that cut new-starter setup from 2 hours to 15 minutes."
+          }
+        ],
+        "certifications": [
+          "CompTIA Security+",
+          "CompTIA Network+"
+        ]
+      },
+      "evaluation": {
+        "must_have": [
+          {
+            "req_id": "m1",
+            "verdict": "met",
+            "evidence": "6 yrs as systems administrator at a regional hospital network"
+          },
+          {
+            "req_id": "m2",
+            "verdict": "met",
+            "evidence": "Ran Active Directory and Group Policy for 900 users"
+          },
+          {
+            "req_id": "m3",
+            "verdict": "met",
+            "evidence": "Managed VLANs, DNS and DHCP across 4 sites"
+          },
+          {
+            "req_id": "m4",
+            "verdict": "met",
+            "evidence": "Escalation point for a 5-person help desk"
+          },
+          {
+            "req_id": "m5",
+            "verdict": "met",
+            "evidence": "Migrated 60 servers to VMware vSphere 7"
+          },
+          {
+            "req_id": "m6",
+            "verdict": "met",
+            "evidence": "B.S. in Information Technology"
+          }
+        ],
+        "nice_to_have": [
+          {
+            "req_id": "n1",
+            "verdict": "met",
+            "evidence": "CompTIA Security+ and Network+"
+          },
+          {
+            "req_id": "n2",
+            "verdict": "met",
+            "evidence": "Automated account provisioning with PowerShell"
+          },
+          {
+            "req_id": "n3",
+            "verdict": "partial",
+            "evidence": "Azure AD Connect setup only"
+          },
+          {
+            "req_id": "n4",
+            "verdict": "not_met",
+            "evidence": ""
+          }
+        ],
+        "strengths": [
+          "Deep Windows Server and AD experience",
+          "Led a large VMware migration",
+          "Automates with PowerShell"
+        ],
+        "gaps": [
+          "Limited cloud exposure",
+          "No ITIL mentioned"
+        ],
+        "summary": "Strong match on every must-have, with six years of hands-on Windows, networking and VMware administration. Cloud experience is light."
+      },
+      "score": {
+        "must_have": 1.0,
+        "nice_to_have": 0.625,
+        "semantic": 0.8666666666666669,
+        "semantic_raw": 0.81,
+        "total": 88.5,
+        "missing_must_have": false
+      },
+      "photoPresent": false,
+      "redactionCount": 9,
+      "revealed": {
+        "name": "Jordan Ellis (synthetic)",
+        "email": "jordan.ellis@example.com",
+        "phone": "+1 404 555 0137",
+        "links": [
+          "linkedin.com/in/jordan-ellis-demo"
+        ],
+        "location": "Atlanta, GA"
+      },
+      "revealedAt": "2026-10-25T18:20:00Z",
+      "revealedBy": "demo-user",
+      "createdAt": "2026-10-25T18:00:00Z",
+      "updatedAt": "2026-10-25T18:02:00Z"
+    },
+    {
+      "id": "c2",
+      "anonId": "CAND-A71C",
+      "fileName": "resume_c2.pdf",
+      "status": "shortlisted",
+      "error": null,
+      "profile": {
+        "headline": "IT administrator, 4 yrs, Windows/Hyper-V/Azure",
+        "education": [
+          {
+            "institution": "Bayside Community College",
+            "degree": "A.A.S.",
+            "field": "Network Administration",
+            "grade": null,
+            "start_year": 2017,
+            "end_year": 2019
+          }
+        ],
+        "experience": [
+          {
+            "title": "IT Administrator",
+            "organisation": "Kessler Manufacturing",
+            "start": "2021-01",
+            "end": "present",
+            "months": 70,
+            "summary": "Runs Windows Server, Active Directory and a 12-host Hyper-V cluster; moved backups to Azure."
+          }
+        ],
+        "total_experience_months": 70,
+        "skills": [
+          "Windows Server",
+          "Active Directory",
+          "Hyper-V",
+          "Azure",
+          "Microsoft 365",
+          "ITIL"
+        ],
+        "projects": [],
+        "certifications": [
+          "Microsoft 365 Certified: Modern Desktop Administrator",
+          "ITIL 4 Foundation"
+        ]
+      },
+      "evaluation": {
+        "must_have": [
+          {
+            "req_id": "m1",
+            "verdict": "met",
+            "evidence": "4 yrs IT administrator at a manufacturing firm"
+          },
+          {
+            "req_id": "m2",
+            "verdict": "met",
+            "evidence": "Windows Server 2016 and AD user and group management"
+          },
+          {
+            "req_id": "m3",
+            "verdict": "partial",
+            "evidence": "Configured switches and DHCP scopes; little VLAN detail"
+          },
+          {
+            "req_id": "m4",
+            "verdict": "met",
+            "evidence": "Supported 250 users on hardware and software issues"
+          },
+          {
+            "req_id": "m5",
+            "verdict": "met",
+            "evidence": "Maintained Hyper-V cluster of 12 hosts"
+          },
+          {
+            "req_id": "m6",
+            "verdict": "partial",
+            "evidence": "Associate degree in Network Administration"
+          }
+        ],
+        "nice_to_have": [
+          {
+            "req_id": "n1",
+            "verdict": "met",
+            "evidence": "Microsoft 365 Certified: Modern Desktop Administrator"
+          },
+          {
+            "req_id": "n2",
+            "verdict": "partial",
+            "evidence": "Basic PowerShell for reports"
+          },
+          {
+            "req_id": "n3",
+            "verdict": "met",
+            "evidence": "Azure VMs and backups"
+          },
+          {
+            "req_id": "n4",
+            "verdict": "met",
+            "evidence": "ITIL 4 Foundation"
+          }
+        ],
+        "strengths": [
+          "Hyper-V and Azure experience",
+          "ITIL certified"
+        ],
+        "gaps": [
+          "Networking depth unclear",
+          "Associate degree rather than a bachelor's"
+        ],
+        "summary": "Solid all-round administrator with virtualization and cloud backup experience. Networking evidence is thinner than the role asks for."
+      },
+      "score": {
+        "must_have": 0.8333333333333334,
+        "nice_to_have": 0.875,
+        "semantic": 0.7000000000000001,
+        "semantic_raw": 0.76,
+        "total": 80.16666666666667,
+        "missing_must_have": false
+      },
+      "photoPresent": true,
+      "redactionCount": 7,
+      "revealed": null,
+      "revealedAt": null,
+      "revealedBy": null,
+      "createdAt": "2026-10-25T18:00:00Z",
+      "updatedAt": "2026-10-25T18:02:00Z"
+    },
+    {
+      "id": "c3",
+      "anonId": "CAND-5D20",
+      "fileName": "resume_c3.pdf",
+      "status": "scored",
+      "error": null,
+      "profile": {
+        "headline": "Network and support technician, 5 yrs, Cisco/Windows",
+        "education": [
+          {
+            "institution": "Western Institute of Technology",
+            "degree": "B.Sc.",
+            "field": "Computer Science",
+            "grade": "First Class",
+            "start_year": 2015,
+            "end_year": 2018
+          }
+        ],
+        "experience": [
+          {
+            "title": "Network Support Engineer",
+            "organisation": "Meridian IT Services",
+            "start": "2020-07",
+            "end": "present",
+            "months": 64,
+            "summary": "Tier-2 support for 1,200 users; configures Cisco switches, VLANs and routing."
+          }
+        ],
+        "total_experience_months": 64,
+        "skills": [
+          "Cisco IOS",
+          "VLANs",
+          "Windows 10/11",
+          "Active Directory",
+          "ServiceNow"
+        ],
+        "projects": [],
+        "certifications": [
+          "Cisco CCNA"
+        ]
+      },
+      "evaluation": {
+        "must_have": [
+          {
+            "req_id": "m1",
+            "verdict": "met",
+            "evidence": "5 yrs in desktop and server support"
+          },
+          {
+            "req_id": "m2",
+            "verdict": "partial",
+            "evidence": "Resets and group changes in Active Directory"
+          },
+          {
+            "req_id": "m3",
+            "verdict": "met",
+            "evidence": "CCNA; configured VLANs and routing"
+          },
+          {
+            "req_id": "m4",
+            "verdict": "met",
+            "evidence": "Tier-2 desk for 1,200 users"
+          },
+          {
+            "req_id": "m5",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "m6",
+            "verdict": "met",
+            "evidence": "B.Sc. in Computer Science"
+          }
+        ],
+        "nice_to_have": [
+          {
+            "req_id": "n1",
+            "verdict": "met",
+            "evidence": "Cisco CCNA"
+          },
+          {
+            "req_id": "n2",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "n3",
+            "verdict": "partial",
+            "evidence": "AWS Cloud Practitioner coursework"
+          },
+          {
+            "req_id": "n4",
+            "verdict": "partial",
+            "evidence": "Followed ITIL change process"
+          }
+        ],
+        "strengths": [
+          "Strong networking (CCNA)",
+          "Large-scale user support"
+        ],
+        "gaps": [
+          "No virtualization experience",
+          "Limited server administration"
+        ],
+        "summary": "Networking and support experience are strong. There is no evidence of virtualization and only light server administration."
+      },
+      "score": {
+        "must_have": 0.75,
+        "nice_to_have": 0.5,
+        "semantic": 0.5666666666666665,
+        "semantic_raw": 0.72,
+        "total": 64.49999999999999,
+        "missing_must_have": true
+      },
+      "photoPresent": false,
+      "redactionCount": 6,
+      "revealed": null,
+      "revealedAt": null,
+      "revealedBy": null,
+      "createdAt": "2026-10-25T18:00:00Z",
+      "updatedAt": "2026-10-25T18:02:00Z"
+    },
+    {
+      "id": "c4",
+      "anonId": "CAND-C0E4",
+      "fileName": "resume_c4.pdf",
+      "status": "scored",
+      "error": null,
+      "profile": {
+        "headline": "Help desk technician, 2 yrs, Windows/home-lab virtualization",
+        "education": [
+          {
+            "institution": "Kaveri Institute of Technology",
+            "degree": "B.Tech",
+            "field": "Information Technology",
+            "grade": "8.1/10 CGPA",
+            "start_year": 2019,
+            "end_year": 2023
+          }
+        ],
+        "experience": [
+          {
+            "title": "Help Desk Technician",
+            "organisation": "Riverside Community College",
+            "start": "2023-08",
+            "end": "present",
+            "months": 26,
+            "summary": "First-line support for staff and students; unlocks accounts and images laptops."
+          }
+        ],
+        "total_experience_months": 26,
+        "skills": [
+          "Windows",
+          "Active Directory",
+          "Proxmox",
+          "pfSense",
+          "PowerShell"
+        ],
+        "projects": [
+          {
+            "title": "Home lab",
+            "summary": "Proxmox cluster with pfSense firewall, VLANs and a Windows Server domain for practice."
+          }
+        ],
+        "certifications": [
+          "CompTIA A+"
+        ]
+      },
+      "evaluation": {
+        "must_have": [
+          {
+            "req_id": "m1",
+            "verdict": "partial",
+            "evidence": "2 yrs help desk"
+          },
+          {
+            "req_id": "m2",
+            "verdict": "partial",
+            "evidence": "Used AD to unlock accounts"
+          },
+          {
+            "req_id": "m3",
+            "verdict": "partial",
+            "evidence": "Home lab with pfSense and VLANs"
+          },
+          {
+            "req_id": "m4",
+            "verdict": "met",
+            "evidence": "Help desk for a 300-person college"
+          },
+          {
+            "req_id": "m5",
+            "verdict": "partial",
+            "evidence": "VirtualBox and Proxmox home lab"
+          },
+          {
+            "req_id": "m6",
+            "verdict": "met",
+            "evidence": "B.Tech in Information Technology"
+          }
+        ],
+        "nice_to_have": [
+          {
+            "req_id": "n1",
+            "verdict": "met",
+            "evidence": "CompTIA A+"
+          },
+          {
+            "req_id": "n2",
+            "verdict": "partial",
+            "evidence": "Small PowerShell scripts"
+          },
+          {
+            "req_id": "n3",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "n4",
+            "verdict": "not_met",
+            "evidence": ""
+          }
+        ],
+        "strengths": [
+          "Eager self-learner with a home lab",
+          "CompTIA A+"
+        ],
+        "gaps": [
+          "Under 3 years of experience",
+          "Production server experience is limited"
+        ],
+        "summary": "Early-career technician with relevant support work and a practical home lab. Most requirements are only partly met in production."
+      },
+      "score": {
+        "must_have": 0.6666666666666666,
+        "nice_to_have": 0.375,
+        "semantic": 0.3666666666666667,
+        "semantic_raw": 0.66,
+        "total": 51.83333333333333,
+        "missing_must_have": false
+      },
+      "photoPresent": false,
+      "redactionCount": 5,
+      "revealed": null,
+      "revealedAt": null,
+      "revealedBy": null,
+      "createdAt": "2026-10-25T18:00:00Z",
+      "updatedAt": "2026-10-25T18:02:00Z"
+    },
+    {
+      "id": "c5",
+      "anonId": "CAND-81B7",
+      "fileName": "resume_c5.pdf",
+      "status": "rejected",
+      "error": null,
+      "profile": {
+        "headline": "Business analyst, 3 yrs, Excel/SQL",
+        "education": [
+          {
+            "institution": "Northgate University",
+            "degree": "BSc",
+            "field": "Business Information Systems",
+            "grade": "2:1",
+            "start_year": 2018,
+            "end_year": 2021
+          }
+        ],
+        "experience": [
+          {
+            "title": "Business Analyst",
+            "organisation": "Harper & Lowe",
+            "start": "2021-09",
+            "end": "present",
+            "months": 49,
+            "summary": "Builds reporting in Excel and SQL; informally helps colleagues with Office and Wi-Fi issues."
+          }
+        ],
+        "total_experience_months": 49,
+        "skills": [
+          "Excel",
+          "SQL",
+          "Power BI"
+        ],
+        "projects": [],
+        "certifications": []
+      },
+      "evaluation": {
+        "must_have": [
+          {
+            "req_id": "m1",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "m2",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "m3",
+            "verdict": "partial",
+            "evidence": "Set up office Wi-Fi"
+          },
+          {
+            "req_id": "m4",
+            "verdict": "partial",
+            "evidence": "Supported colleagues with Office issues"
+          },
+          {
+            "req_id": "m5",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "m6",
+            "verdict": "met",
+            "evidence": "Bachelor's in Business Information Systems"
+          }
+        ],
+        "nice_to_have": [
+          {
+            "req_id": "n1",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "n2",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "n3",
+            "verdict": "not_met",
+            "evidence": ""
+          },
+          {
+            "req_id": "n4",
+            "verdict": "not_met",
+            "evidence": ""
+          }
+        ],
+        "strengths": [
+          "Analytical background"
+        ],
+        "gaps": [
+          "No systems administration",
+          "No server or virtualization experience"
+        ],
+        "summary": "The background is in business analysis rather than IT operations. Few of the technical requirements are evidenced."
+      },
+      "score": {
+        "must_have": 0.3333333333333333,
+        "nice_to_have": 0.0,
+        "semantic": 0.09999999999999974,
+        "semantic_raw": 0.58,
+        "total": 19.666666666666657,
+        "missing_must_have": true
+      },
+      "photoPresent": false,
+      "redactionCount": 4,
+      "revealed": null,
+      "revealedAt": null,
+      "revealedBy": null,
+      "createdAt": "2026-10-25T18:00:00Z",
+      "updatedAt": "2026-10-25T18:02:00Z"
+    }
+  ],
+  "demoIdentities": {
+    "c2": {
+      "name": "Sam Okafor (synthetic)",
+      "email": "sam.okafor@example.com",
+      "phone": "+1 713 555 0182",
+      "links": [],
+      "location": "Houston, TX"
+    }
+  }
+}

@@ -1,0 +1,65 @@
+%PDF-1.4
+%ту╧╙
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 2786 >>
+stream
+BT /F2 20.0 Tf 54.0 711.0 Td (Aisha Mensah) Tj ET
+BT /F1 9.5 Tf 54.0 696.2 Td (aisha.mensah@example.com | +1 \(404\) 555-0134 | linkedin.com/in/aisha-mensah-synthetic | Atlanta, GA 30318) Tj ET
+BT /F2 11.0 Tf 54.0 667.3 Td (PROFILE) Tj ET
+BT /F1 10.0 Tf 54.0 651.8 Td (Aisha Mensah is a systems administrator with seven years of experience running Windows) Tj ET
+BT /F1 10.0 Tf 54.0 638.3 Td (infrastructure for healthcare and logistics organisations. She is known for calm incident handling) Tj ET
+BT /F1 10.0 Tf 54.0 624.8 Td (and for automating routine work with PowerShell.) Tj ET
+BT /F2 11.0 Tf 54.0 596.0 Td (EXPERIENCE) Tj ET
+BT /F2 10.5 Tf 54.0 575.8 Td (Senior Systems Administrator - Peachtree Regional Health, Atlanta, GA \(Mar 2021 - Present\)) Tj ET
+BT /F1 10.0 Tf 54.0 561.3 Td (Х Administers 140 Windows Server 2019/2022 hosts and Active Directory for 2,300 users across 6) Tj ET
+BT /F1 10.0 Tf 63.0 547.8 Td (sites.) Tj ET
+BT /F1 10.0 Tf 54.0 533.3 Td (Х Led the migration of 85 workloads from ageing Hyper-V hosts to a VMware vSphere 8 cluster with) Tj ET
+BT /F1 10.0 Tf 63.0 519.8 Td (zero unplanned downtime.) Tj ET
+BT /F1 10.0 Tf 54.0 505.3 Td (Х Designed Group Policy baselines and LAPS rollout that closed 40 audit findings.) Tj ET
+BT /F1 10.0 Tf 54.0 490.8 Td (Х Escalation point for a 7-person service desk; wrote the runbooks the team uses for tier-2 issues.) Tj ET
+BT /F2 10.5 Tf 54.0 470.6 Td (Systems Administrator - Southline Freight, Marietta, GA \(Jun 2017 - Feb 2021\)) Tj ET
+BT /F1 10.0 Tf 54.0 456.1 Td (Х Ran DNS, DHCP, VLANs and site-to-site VPNs for 3 warehouses and 400 users.) Tj ET
+BT /F1 10.0 Tf 54.0 441.6 Td (Х Moved email to Exchange Online and rolled out Microsoft Teams to 400 staff.) Tj ET
+BT /F1 10.0 Tf 54.0 427.1 Td (Х Automated onboarding and offboarding with PowerShell, cutting account setup from 2 hours to 10) Tj ET
+BT /F1 10.0 Tf 63.0 413.6 Td (minutes.) Tj ET
+BT /F2 11.0 Tf 54.0 384.8 Td (EDUCATION) Tj ET
+BT /F1 10.0 Tf 54.0 369.3 Td (B.S. Information Technology, Kennesaw Valley University - 2013-2017, GPA 3.7/4.0) Tj ET
+BT /F2 11.0 Tf 54.0 340.4 Td (SKILLS) Tj ET
+BT /F1 10.0 Tf 54.0 324.9 Td (Windows Server, Active Directory, Group Policy, VMware vSphere, Hyper-V, PowerShell, Microsoft 365,) Tj ET
+BT /F1 10.0 Tf 54.0 311.4 Td (Exchange Online, Azure AD Connect, Veeam Backup, DNS, DHCP, VLANs, Fortinet firewalls, ServiceNow) Tj ET
+BT /F2 11.0 Tf 54.0 282.6 Td (CERTIFICATIONS) Tj ET
+BT /F1 10.0 Tf 54.0 267.1 Td (CompTIA Security+ \(2019\)) Tj ET
+BT /F1 10.0 Tf 54.0 251.6 Td (Microsoft Certified: Azure Administrator Associate \(2023\)) Tj ET
+BT /F1 10.0 Tf 54.0 236.1 Td (ITIL 4 Foundation \(2022\)) Tj ET
+BT /F1 8.0 Tf 54.0 207.3 Td (Synthetic resume created for the FairScreen demo. This person is fictional.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000218 00000 n 
+0000000320 00000 n 
+0000003158 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3294
+%%EOF

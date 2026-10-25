@@ -1,0 +1,63 @@
+%PDF-1.4
+%ту╧╙
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 2376 >>
+stream
+BT /F2 20.0 Tf 54.0 711.0 Td (Mr. Daniel Kowalski) Tj ET
+BT /F1 9.5 Tf 54.0 696.2 Td (d.kowalski@example.com | \(312\) 555-0187 | github.com/dkowalski-synthetic | Chicago, Illinois) Tj ET
+BT /F2 11.0 Tf 54.0 667.3 Td (SUMMARY) Tj ET
+BT /F1 10.0 Tf 54.0 651.8 Td (Network engineer with 4 years of experience in campus and branch networking. Mr. Kowalski holds a) Tj ET
+BT /F1 10.0 Tf 54.0 638.3 Td (CCNA and has supported Windows desktops and servers, but his virtualization experience is limited to) Tj ET
+BT /F1 10.0 Tf 54.0 624.8 Td (a lab environment.) Tj ET
+BT /F2 11.0 Tf 54.0 596.0 Td (EXPERIENCE) Tj ET
+BT /F2 10.5 Tf 54.0 575.8 Td (Network Engineer - Lakeshore Credit Union, Chicago, IL \(Aug 2022 - Present\)) Tj ET
+BT /F1 10.0 Tf 54.0 561.3 Td (Х Maintains Cisco Catalyst switching, VLANs and OSPF routing for 22 branches.) Tj ET
+BT /F1 10.0 Tf 54.0 546.8 Td (Х Replaced the branch VPN mesh with SD-WAN, improving uptime to 99.97%.) Tj ET
+BT /F1 10.0 Tf 54.0 532.3 Td (Х Handles tier-2 desktop and Windows Server tickets when the service desk escalates.) Tj ET
+BT /F2 10.5 Tf 54.0 512.1 Td (IT Support Technician - Midway Community College, Chicago, IL \(Jan 2021 - Jul 2022\)) Tj ET
+BT /F1 10.0 Tf 54.0 497.6 Td (Х Supported 600 staff and students with hardware, software and Wi-Fi issues.) Tj ET
+BT /F1 10.0 Tf 54.0 483.1 Td (Х Reset accounts and managed security groups in Active Directory.) Tj ET
+BT /F2 11.0 Tf 54.0 454.3 Td (EDUCATION) Tj ET
+BT /F1 10.0 Tf 54.0 438.8 Td (B.S. Computer Networking, Great Lakes Institute of Technology - 2016-2020) Tj ET
+BT /F2 11.0 Tf 54.0 409.9 Td (SKILLS) Tj ET
+BT /F1 10.0 Tf 54.0 394.4 Td (Cisco IOS, VLANs, OSPF, BGP basics, SD-WAN, Wireshark, Windows 10/11, Active Directory, Python for) Tj ET
+BT /F1 10.0 Tf 54.0 380.9 Td (network automation) Tj ET
+BT /F2 11.0 Tf 54.0 352.1 Td (CERTIFICATIONS) Tj ET
+BT /F1 10.0 Tf 54.0 336.6 Td (Cisco CCNA \(2021\)) Tj ET
+BT /F1 10.0 Tf 54.0 321.1 Td (CompTIA Network+ \(2020\)) Tj ET
+BT /F2 11.0 Tf 54.0 292.2 Td (PROJECTS) Tj ET
+BT /F2 10.5 Tf 54.0 272.0 Td (Home virtualization lab) Tj ET
+BT /F1 10.0 Tf 54.0 257.5 Td (Built a Proxmox lab with a pfSense firewall and a Windows Server domain to practise server) Tj ET
+BT /F1 10.0 Tf 54.0 244.0 Td (administration.) Tj ET
+BT /F1 8.0 Tf 54.0 215.2 Td (Synthetic resume created for the FairScreen demo. This person is fictional.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000218 00000 n 
+0000000320 00000 n 
+0000002748 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2884
+%%EOF
