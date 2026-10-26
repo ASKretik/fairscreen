@@ -26,6 +26,8 @@ class Settings:
     gemini_eval_model: str = ""
     gemini_embed_model: str = "gemini-embedding-001"
     gemini_concurrency: int = 2
+    # Attempts per call before giving up on 429/5xx (backoff 2, 4, 8, ... s, capped at 60 s).
+    gemini_max_attempts: int = 5
     # Optional requests-per-minute caps (0 = no cap), from the AI Studio rate-limit page.
     gemini_parse_rpm: int = 0
     gemini_eval_rpm: int = 0
@@ -66,6 +68,7 @@ def get_settings() -> Settings:
         gemini_eval_model=os.getenv("GEMINI_EVAL_MODEL", "").strip(),
         gemini_embed_model=os.getenv("GEMINI_EMBED_MODEL", "").strip() or "gemini-embedding-001",
         gemini_concurrency=max(1, _int("GEMINI_CONCURRENCY", 2)),
+        gemini_max_attempts=max(1, _int("GEMINI_MAX_ATTEMPTS", 5)),
         gemini_parse_rpm=max(0, _int("GEMINI_PARSE_RPM", 0)),
         gemini_eval_rpm=max(0, _int("GEMINI_EVAL_RPM", 0)),
         gemini_embed_rpm=max(0, _int("GEMINI_EMBED_RPM", 0)),

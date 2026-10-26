@@ -47,7 +47,6 @@ TAGS_PROMPT_VERSION = "tags-v1"
 
 EMBED_DIM = 768
 EMBED_MAX_CHARS = 6000  # the embedding model takes about 2,048 tokens
-MAX_ATTEMPTS = 5
 MAX_WAIT_S = 60.0
 MAX_MUST = 8
 MAX_NICE = 8
@@ -283,7 +282,7 @@ class GeminiService:
     async def _call(self, fn: Any, limiter: RateLimiter, **kwargs: Any) -> Any:
         try:
             async for attempt in AsyncRetrying(
-                stop=stop_after_attempt(MAX_ATTEMPTS),
+                stop=stop_after_attempt(self.settings.gemini_max_attempts),
                 wait=_wait,
                 retry=retry_if_exception(_is_retryable),
                 before_sleep=_log_retry,

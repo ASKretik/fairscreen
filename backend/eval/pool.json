@@ -1,0 +1,133 @@
+{
+  "seed": 42,
+  "per_category": 8,
+  "others": 6,
+  "categories": [
+    "INFORMATION-TECHNOLOGY",
+    "FINANCE",
+    "HR"
+  ],
+  "created": "2026-10-26T14:00:02.631531+00:00",
+  "items": [
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/29051656.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/13385306.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/10553553.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/37764298.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/18187364.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/17987433.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/17641670.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/INFORMATION-TECHNOLOGY/13836471.pdf",
+      "category": "INFORMATION-TECHNOLOGY"
+    },
+    {
+      "id": "data/data/FINANCE/59938965.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/15717923.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/39675895.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/92524964.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/28522529.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/15011085.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/29612672.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/FINANCE/25497147.pdf",
+      "category": "FINANCE"
+    },
+    {
+      "id": "data/data/HR/11698189.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/11592605.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/14225422.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/18084150.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/18297650.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/27018550.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/29297973.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/HR/28419173.pdf",
+      "category": "HR"
+    },
+    {
+      "id": "data/data/BUSINESS-DEVELOPMENT/14825300.pdf",
+      "category": "BUSINESS-DEVELOPMENT"
+    },
+    {
+      "id": "data/data/HEALTHCARE/17539842.pdf",
+      "category": "HEALTHCARE"
+    },
+    {
+      "id": "data/data/BUSINESS-DEVELOPMENT/81310245.pdf",
+      "category": "BUSINESS-DEVELOPMENT"
+    },
+    {
+      "id": "data/data/PUBLIC-RELATIONS/18436190.pdf",
+      "category": "PUBLIC-RELATIONS"
+    },
+    {
+      "id": "data/data/CONSULTANT/10332998.pdf",
+      "category": "CONSULTANT"
+    },
+    {
+      "id": "data/data/ACCOUNTANT/15906625.pdf",
+      "category": "ACCOUNTANT"
+    }
+  ]
+}
