@@ -11,9 +11,11 @@ The site deploys to GitHub Pages on every push to `main`. Until the backend is c
 
 ![Landing page](docs/screenshot-landing.png)
 
+![Live demo: pick a role, tune tags and their 1–5 weights](docs/screenshot-tags.png)
+
 | Ranked blind table | Candidate drawer |
 |---|---|
-| ![Ranked blind shortlist](docs/screenshot-table.png) | ![Candidate drawer with checklist and reveal gate](docs/screenshot-drawer.png) |
+| ![Ranked blind shortlist](docs/screenshot-table.png) | ![Candidate drawer with weighted checklist and reveal gate](docs/screenshot-drawer.png) |
 
 *(Screenshots: the live demo on the real 100-resume pool.)*
 
