@@ -308,8 +308,10 @@ export function Landing() {
 
   // Header and footer links point at sections ("/#pricing").
   useEffect(() => {
-    if (!hash) return window.scrollTo(0, 0);
-    document.getElementById(hash.slice(1))?.scrollIntoView();
+    // Don't return these calls: scroll methods now return Promises, and React would call the
+    // returned value as the cleanup when the page unmounts (a white screen on leaving "/").
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
+    else window.scrollTo(0, 0);
   }, [hash]);
 
   return (
