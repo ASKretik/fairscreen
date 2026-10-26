@@ -57,7 +57,7 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
           VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
       # GitHub Pages has no rewrites: serving the app as the 404 page makes deep links work. /demo is also
-      # the folder holding demo_job.json (SPEC §10), which Pages redirects to /demo/, so give it an index too.
+      # the folder holding the demo data (demo_pool.json), which Pages redirects to /demo/, so give it an index too.
       - run: cp dist/index.html dist/404.html && cp dist/index.html dist/demo/index.html
       - uses: actions/upload-pages-artifact@v5
         with:

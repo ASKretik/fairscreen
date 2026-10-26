@@ -146,3 +146,49 @@ def test_evaluations_are_cached_on_disk_for_scripts(tmp_path):
         out = asyncio.run(svc.evaluate(profile, REQS))
         assert out.must_have[0].verdict == "met"
     assert calls["n"] == 1
+
+
+def test_jd_parsing_resets_tag_weights_and_the_evaluator_never_sees_them(tmp_path):
+    from app.models import CandidateEvaluation, RequirementVerdict
+    from tests.test_blind import make_parsed
+
+    heavy = REQS.model_copy(update={"must_have": [Requirement(id="m1", text="SQL", kind="skill", weight=5)]})
+    seen: list[str] = []
+
+    class Models:
+        async def generate_content(self, *, model, contents, config):
+            seen.append(contents if isinstance(contents, str) else "")
+            parsed = heavy if "Job description" in str(contents) else CandidateEvaluation(
+                must_have=[RequirementVerdict(req_id="m1", verdict="met", evidence="SQL")],
+                nice_to_have=[], strengths=[], gaps=[], summary="Fit.")
+            return SimpleNamespace(parsed=parsed, text=None, candidates=None, prompt_feedback=None)
+
+    svc = GeminiService(SETTINGS, client=SimpleNamespace(aio=SimpleNamespace(models=Models())))
+    assert asyncio.run(svc.parse_jd("Job description text")).must_have[0].weight == 3
+    asyncio.run(svc.evaluate(make_parsed().profile, heavy))
+    assert '"text": "SQL"' in seen[-1] and "weight" not in seen[-1]
+
+
+def test_judge_tags_aligns_verdicts_and_caches(tmp_path):
+    from app.models import RequirementVerdict, TagJudgement
+    from tests.test_blind import make_parsed
+
+    tags = [Requirement(id="t1", text="SQL", kind="skill"), Requirement(id="t2", text="Go", kind="skill")]
+    reply = TagJudgement(verdicts=[RequirementVerdict(req_id="t2", verdict="met", evidence="Built services in Go"),
+                                   RequirementVerdict(req_id="zz", verdict="met", evidence="x")],
+                         summary="Backend engineer. She writes Go.")
+    calls = {"n": 0}
+
+    class Models:
+        async def generate_content(self, *, model, contents, config):
+            calls["n"] += 1
+            assert "weight" not in contents
+            return SimpleNamespace(parsed=reply, text=None, candidates=None, prompt_feedback=None)
+
+    client = SimpleNamespace(aio=SimpleNamespace(models=Models()))
+    for _ in range(2):
+        svc = GeminiService(SETTINGS, client=client, disk_cache_dir=tmp_path)
+        out = asyncio.run(svc.judge_tags(make_parsed().profile, tags))
+        assert [(v.req_id, v.verdict) for v in out.verdicts] == [("t1", "not_met"), ("t2", "met")]
+        assert "She" not in out.summary
+    assert calls["n"] == 1

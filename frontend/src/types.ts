@@ -2,10 +2,12 @@
 
 export type ReqKind = "skill" | "experience" | "education" | "certification" | "other";
 
+/** A screening tag. `weight` (1–5, default 3) is its importance within its group. */
 export interface Requirement {
   id: string;
   text: string;
   kind: ReqKind;
+  weight?: number;
 }
 
 export interface JobRequirements {
@@ -128,6 +130,8 @@ export interface Candidate {
   revealedBy: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+  /** Demo only: the resume's dataset category, shown so viewers can judge the ranking. */
+  label?: string | null;
 }
 
 export interface RevealResult {
@@ -145,6 +149,7 @@ export interface WorkspaceActions {
   canRetry?(candidateId: string): boolean;
   retry?(candidateId: string): Promise<void>;
   saveRequirements?(requirements: JobRequirements): Promise<void>;
-  saveWeights?(weights: Weights): Promise<void>;
+  /** Group weights plus tag weights by requirement ID. */
+  saveWeights?(weights: Weights, tagWeights: Record<string, number>): Promise<void>;
   deleteJob?(): Promise<void>;
 }

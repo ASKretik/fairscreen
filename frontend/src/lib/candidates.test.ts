@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { loadDemo } from "../test-fixtures";
 import type { Candidate } from "../types";
-import { combine, coverage, formatMonths, rankCandidates, rankMap, rebalance, rescore, topMatches } from "./candidates";
+import {
+  combine,
+  coverage,
+  formatMonths,
+  rankCandidates,
+  rankMap,
+  rebalance,
+  rescore,
+  tagShares,
+  tagWeightMap,
+  topMatches,
+  weightedCoverage,
+} from "./candidates";
 
 describe("candidate helpers", () => {
   const { job, candidates } = loadDemo();
@@ -49,8 +61,44 @@ describe("weights", () => {
 
   it("combine and rescore match the backend formula", () => {
     expect(combine(0.625, 0.5, 0.5, { must: 0.5, nice: 0.2, semantic: 0.3 })).toBeCloseTo(56.25);
-    const { candidates } = loadDemo();
-    const semanticOnly = rescore(candidates, { must: 0, nice: 0, semantic: 1 });
+    const { job, candidates } = loadDemo();
+    const semanticOnly = rescore(candidates, { must: 0, nice: 0, semantic: 1 }, job.requirements);
     semanticOnly.forEach((c, i) => expect(c.score!.total).toBeCloseTo(100 * candidates[i].score!.semantic));
+    // Equal tag weights reproduce the stored (SPEC §7.4) scores exactly.
+    rescore(candidates, job.weights, job.requirements).forEach((c, i) => expect(c.score!.total).toBeCloseTo(candidates[i].score!.total));
+  });
+});
+
+describe("tag weights", () => {
+  const v = (req_id: string, verdict: "met" | "partial" | "not_met") => ({ req_id, verdict, evidence: "" });
+
+  it("weighted coverage matches backend scoring.coverage", () => {
+    const verdicts = [v("m1", "met"), v("m2", "partial"), v("m3", "not_met"), v("m4", "met")];
+    expect(weightedCoverage(verdicts, new Map())).toBeCloseTo(2.5 / 4);
+    expect(weightedCoverage([v("m1", "met"), v("m2", "not_met")], new Map([["m1", 5], ["m2", 1]]))).toBeCloseTo(5 / 6);
+    expect(weightedCoverage([v("m1", "met"), v("m2", "not_met")], new Map([["m1", 1]]))).toBeCloseTo(1 / 4);
+    expect(weightedCoverage([], new Map())).toBe(1);
+  });
+
+  it("raising a tag's weight moves candidates who have it up", () => {
+    const { job, candidates } = loadDemo();
+    const target = job.requirements.must_have[4]; // virtualization
+    const heavy = { ...job.requirements, must_have: job.requirements.must_have.map((r) => (r.id === target.id ? { ...r, weight: 5 } : { ...r, weight: 1 })) };
+    const before = rescore(candidates, job.weights, job.requirements);
+    const after = rescore(candidates, job.weights, heavy);
+    before.forEach((c, i) => {
+      const met = c.evaluation!.must_have.find((x) => x.req_id === target.id)!.verdict === "met";
+      if (met) expect(after[i].score!.must_have).toBeGreaterThanOrEqual(c.score!.must_have - 1e-9);
+      else expect(after[i].score!.must_have).toBeLessThanOrEqual(c.score!.must_have + 1e-9);
+    });
+    expect(tagWeightMap(heavy).get(target.id)).toBe(5);
+  });
+
+  it("tag shares split each group's weight by tag weight", () => {
+    const { job } = loadDemo();
+    const shares = tagShares(job.requirements, { must: 0.5, nice: 0.2, semantic: 0.3 });
+    const total = [...shares.values()].reduce((a, b) => a + b, 0);
+    expect(total).toBeCloseTo(0.7);
+    expect(shares.get("m1")).toBeCloseTo(0.5 / job.requirements.must_have.length);
   });
 });

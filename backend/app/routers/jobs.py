@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from app.auth import User, current_user
 from app.deps import Services, get_services
 from app import scoring
-from app.models import JobRequirements, ScoreBreakdown, Weights
+from app.models import CandidateEvaluation, JobRequirements, ScoreBreakdown, Weights, WeightsUpdate
 from app.services.firestore import utcnow
 from app.services.gemini import MAX_MUST, MAX_NICE, GeminiError, normalise_requirements
 from app.services.pipeline import is_pdf, jd_embedding_text, new_anon_id, run_batch
@@ -23,8 +23,11 @@ EMPTY_COUNTS = {"total": 0, "processing": 0, "scored": 0, "failed": 0, "shortlis
 
 
 class CreateJobBody(BaseModel):
+    """Either a JD to extract tags from, or the recruiter's own tags (`requirements`)."""
+
     title: str = Field(min_length=1, max_length=200)
-    jd_text: str = Field(min_length=50, max_length=20_000)
+    jd_text: str | None = Field(default=None, min_length=50, max_length=20_000)
+    requirements: JobRequirements | None = None
 
 
 async def owned_job(job_id: str, user: User, services: Services) -> dict[str, Any]:
@@ -73,13 +76,32 @@ def upload_error(code: int, names: list[str], max_file_mb: int) -> HTTPException
     return HTTPException(code, f"Only PDF resumes are supported: {', '.join(names)}.")
 
 
+def validated_requirements(body: JobRequirements) -> JobRequirements:
+    """The recruiter's tags, checked against the limits and renumbered m1.. / n1..; 422 otherwise."""
+    must = [r for r in body.must_have if r.text.strip()]
+    nice = [r for r in body.nice_to_have if r.text.strip()]
+    if not 1 <= len(must) <= MAX_MUST or len(nice) > MAX_NICE or not body.role_title.strip():
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT,
+            f"Give a role title, 1–{MAX_MUST} must-haves and at most {MAX_NICE} nice-to-haves.",
+        )
+    if any(len(r.text) > 300 for r in must + nice):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Each requirement must be 300 characters or fewer.")
+    return normalise_requirements(body)
+
+
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_job(
     body: CreateJobBody, user: User = Depends(current_user), services: Services = Depends(get_services)
 ) -> dict[str, Any]:
-    """Parse the JD, embed it and create the job (SPEC §7.1)."""
+    """Parse the JD (or take the recruiter's own tags), embed them and create the job (SPEC §7.1)."""
+    if body.requirements is None and body.jd_text is None:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Paste a job description or add your own tags.")
     try:
-        requirements = await services.gemini.parse_jd(body.jd_text)
+        if body.requirements is not None:
+            requirements = validated_requirements(body.requirements)
+        else:
+            requirements = await services.gemini.parse_jd(body.jd_text or "")
         jd_embedding = await services.gemini.embed(jd_embedding_text(requirements))
     except GeminiError as e:
         raise _gemini_failed(e) from e
@@ -87,7 +109,7 @@ async def create_job(
     job = {
         "ownerUid": user.uid,
         "title": body.title.strip(),
-        "jdText": body.jd_text,
+        "jdText": body.jd_text or "",
         "requirements": requirements.model_dump(),
         "requirementsLocked": False,
         "weights": Weights().model_dump(),
@@ -111,17 +133,11 @@ async def update_requirements(
     """Edit requirements before the first upload; re-embeds the JD."""
     job = await owned_job(job_id, user, services)
     if job.get("requirementsLocked"):
-        raise HTTPException(status.HTTP_409_CONFLICT, "Requirements are locked once resumes have been uploaded.")
-    must = [r for r in body.must_have if r.text.strip()]
-    nice = [r for r in body.nice_to_have if r.text.strip()]
-    if not 1 <= len(must) <= MAX_MUST or len(nice) > MAX_NICE or not body.role_title.strip():
         raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_CONTENT,
-            f"Give a role title, 1–{MAX_MUST} must-haves and at most {MAX_NICE} nice-to-haves.",
+            status.HTTP_409_CONFLICT,
+            "Tags are locked once resumes have been uploaded; their weights can still be changed.",
         )
-    if any(len(r.text) > 300 for r in must + nice):
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Each requirement must be 300 characters or fewer.")
-    requirements = normalise_requirements(body)
+    requirements = validated_requirements(body)
     try:
         jd_embedding = await services.gemini.embed(jd_embedding_text(requirements))
     except GeminiError as e:
@@ -212,25 +228,39 @@ async def upload_resumes(
 @router.patch("/{job_id}/weights")
 async def update_weights(
     job_id: str,
-    body: Weights,
+    body: WeightsUpdate,
     user: User = Depends(current_user),
     services: Services = Depends(get_services),
 ) -> dict[str, Any]:
-    """Recompute every score's total with new weights; no LLM calls (P1, SPEC §8)."""
-    await owned_job(job_id, user, services)
+    """New group weights and, optionally, tag weights; every stored score is recomputed from its
+    checklist. No LLM calls (P1, SPEC §8). Allowed after upload: weights change the score, not the verdicts."""
+    job = await owned_job(job_id, user, services)
+    requirements = JobRequirements.model_validate(job["requirements"])
+    known = set(scoring.tag_weights(requirements))
+    if unknown := sorted(set(body.tag_weights) - known):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"Unknown tag IDs: {', '.join(unknown)}.")
     candidates = await services.store.list_candidates(job_id)
     if any(c.get("status") == "processing" for c in candidates):
         # In-flight candidates are scored with the weights from upload time.
         raise HTTPException(status.HTTP_409_CONFLICT, "Wait until all resumes have finished processing.")
+    requirements = requirements.model_copy(
+        update={
+            group: [r.model_copy(update={"weight": body.tag_weights.get(r.id, r.weight)}) for r in getattr(requirements, group)]
+            for group in ("must_have", "nice_to_have")
+        }
+    )
+    weights, tags = body.group_weights(), scoring.tag_weights(requirements)
     now = utcnow()
     updates = {}
     for c in candidates:
-        if c.get("score"):
-            s = ScoreBreakdown.model_validate(c["score"])
-            total = scoring.combine(s.must_have, s.nice_to_have, s.semantic, body)
-            updates[c["id"]] = {"score": s.model_copy(update={"total": total}).model_dump(), "updatedAt": now}
-    await services.store.update_candidates(job_id, updates, {"weights": body.model_dump(), "updatedAt": now})
-    return {"weights": body.model_dump(), "rescored": len(updates)}
+        if c.get("score") and c.get("evaluation"):
+            s = scoring.rescore(
+                ScoreBreakdown.model_validate(c["score"]), CandidateEvaluation.model_validate(c["evaluation"]), weights, tags
+            )
+            updates[c["id"]] = {"score": s.model_dump(), "updatedAt": now}
+    job_fields = {"weights": weights.model_dump(), "requirements": requirements.model_dump(), "updatedAt": now}
+    await services.store.update_candidates(job_id, updates, job_fields)
+    return {"weights": weights.model_dump(), "tag_weights": tags, "rescored": len(updates)}
 
 
 @router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)

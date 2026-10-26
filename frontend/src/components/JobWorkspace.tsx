@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { rankCandidates, rankMap, rescore } from "../lib/candidates";
+import { rankCandidates, rankMap, rescore, tagWeight } from "../lib/candidates";
 import { candidatesToCsv, csvFileName, downloadCsv } from "../lib/csv";
-import type { Candidate, CandidateStatus, Job, JobRequirements, Weights, WorkspaceActions } from "../types";
+import type { Candidate, CandidateStatus, Job, JobRequirements, Requirement, Weights, WorkspaceActions } from "../types";
 import { CandidateDrawer } from "./CandidateDrawer";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { CandidateTable } from "./CandidateTable";
@@ -12,6 +12,7 @@ import { UploadDropzone } from "./UploadDropzone";
 import { WeightSliders } from "./WeightSliders";
 
 const MAX_CANDIDATES = 50;
+const PAGE = 25;
 type Filter = "all" | CandidateStatus;
 const FILTERS: Filter[] = ["all", "scored", "shortlisted", "rejected", "processing", "failed"];
 
@@ -21,6 +22,8 @@ interface Props {
   actions: WorkspaceActions;
   currentUid: string | null;
   demo?: boolean;
+  /** Show each candidate's dataset label (demo pool only). */
+  showLabels?: boolean;
 }
 
 function Stat({ label, value }: { label: string; value: number }) {
@@ -29,6 +32,21 @@ function Stat({ label, value }: { label: string; value: number }) {
       <p className="text-2xl font-semibold text-slate-900 tabular-nums">{value}</p>
       <p className="text-xs text-slate-500">{label}</p>
     </div>
+  );
+}
+
+function TagChip({ r, must }: { r: Requirement; must: boolean }) {
+  const w = tagWeight(r);
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full py-1 pr-1.5 pl-2.5 text-xs font-medium ${
+        must ? "bg-indigo-600 text-white" : "text-indigo-700 ring-1 ring-indigo-200 ring-inset"
+      }`}
+      title={`${r.kind} · weight ${w} of 5`}
+    >
+      {r.text}
+      <span className={`rounded-full px-1.5 text-[10px] tabular-nums ${must ? "bg-white/20" : "bg-indigo-50"}`}>×{w}</span>
+    </span>
   );
 }
 
@@ -65,7 +83,7 @@ function RequirementsPanel({ job, actions }: { job: Job; actions: WorkspaceActio
             Cancel
           </Button>
           <Button onClick={save} loading={saving}>
-            Save requirements
+            Save tags
           </Button>
         </div>
       </Card>
@@ -77,18 +95,14 @@ function RequirementsPanel({ job, actions }: { job: Job; actions: WorkspaceActio
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="mr-1 text-xs font-medium text-slate-500">Must-have</span>
         {req.must_have.map((r) => (
-          <span key={r.id} className="rounded-full bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white" title={r.kind}>
-            {r.text}
-          </span>
+          <TagChip key={r.id} r={r} must />
         ))}
       </div>
       {req.nice_to_have.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="mr-1 text-xs font-medium text-slate-500">Nice-to-have</span>
           {req.nice_to_have.map((r) => (
-            <span key={r.id} className="rounded-full px-2.5 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-200 ring-inset" title={r.kind}>
-              {r.text}
-            </span>
+            <TagChip key={r.id} r={r} must={false} />
           ))}
         </div>
       )}
@@ -101,22 +115,28 @@ function RequirementsPanel({ job, actions }: { job: Job; actions: WorkspaceActio
             setEditing(true);
           }}
         >
-          Edit requirements
+          Edit tags
         </Button>
       )}
-      {job.requirementsLocked && <p className="text-xs text-slate-400">Requirements are locked because screening has started.</p>}
+      {job.requirementsLocked && actions.saveWeights && (
+        <p className="text-xs text-slate-400">Tags are locked because screening has started; you can still change their weights.</p>
+      )}
     </div>
   );
 }
 
-export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actions, currentUid, demo = false }: Props) {
-  // While the weight sliders are being dragged, everything below shows previewed totals.
-  const [previewWeights, setPreviewWeights] = useState<Weights | null>(null);
-  const job = useMemo(() => (previewWeights ? { ...savedJob, weights: previewWeights } : savedJob), [savedJob, previewWeights]);
-  const candidates = useMemo(
-    () => (previewWeights ? rescore(savedCandidates, previewWeights) : savedCandidates),
-    [savedCandidates, previewWeights],
+export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actions, currentUid, demo = false, showLabels = false }: Props) {
+  // While weights are being changed, everything below shows previewed scores.
+  const [preview, setPreview] = useState<{ weights: Weights; requirements: JobRequirements } | null>(null);
+  const job = useMemo(
+    () => (preview ? { ...savedJob, weights: preview.weights, requirements: preview.requirements } : savedJob),
+    [savedJob, preview],
   );
+  const candidates = useMemo(
+    () => (preview ? rescore(savedCandidates, preview.weights, preview.requirements) : savedCandidates),
+    [savedCandidates, preview],
+  );
+  const [limit, setLimit] = useState(PAGE);
   const [showWeights, setShowWeights] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -134,6 +154,7 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
     () => rankCandidates(candidates, sortDir).filter((c) => filter === "all" || c.status === filter),
     [candidates, sortDir, filter],
   );
+  const visibleRows = rows.slice(0, limit);
   const counts = useMemo(() => {
     const m: Record<string, number> = { all: candidates.length };
     candidates.forEach((c) => (m[c.status] = (m[c.status] ?? 0) + 1));
@@ -187,7 +208,7 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
                 <p className="text-sm text-slate-500">{job.requirements.role_title}</p>
               )}
             </div>
-            <RequirementsPanel key={job.requirementsLocked ? "locked" : "open"} job={job} actions={actions} />
+            {!demo && <RequirementsPanel key={job.requirementsLocked ? "locked" : "open"} job={job} actions={actions} />}
           </div>
           <div className="shrink-0 space-y-4">
             <div className="grid grid-cols-4 gap-6 lg:text-right">
@@ -199,7 +220,7 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
             <div className="flex flex-wrap gap-2 lg:justify-end">
               {actions.saveWeights && hasScores && (
                 <Button variant="secondary" size="sm" onClick={() => setShowWeights((v) => !v)} aria-expanded={showWeights}>
-                  {showWeights ? "Hide weights" : "Adjust weights"}
+                  {showWeights ? "Hide weights" : "Adjust tag weights"}
                 </Button>
               )}
               {actions.deleteJob && (
@@ -215,7 +236,8 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
           <div className="mt-6 border-t border-slate-100 pt-6">
             <WeightSliders
               saved={savedJob.weights}
-              onPreview={setPreviewWeights}
+              requirements={savedJob.requirements}
+              onPreview={setPreview}
               onSave={actions.saveWeights}
               blockedReason={processing > 0 ? "Wait until all resumes have finished processing." : null}
             />
@@ -281,7 +303,10 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
                 type="button"
                 role="tab"
                 aria-selected={filter === f}
-                onClick={() => setFilter(f)}
+                onClick={() => {
+                  setFilter(f);
+                  setLimit(PAGE);
+                }}
                 className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
                   filter === f ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
                 }`}
@@ -300,14 +325,28 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
           </Button>
         </div>
         <CandidateTable
-          rows={rows}
+          rows={visibleRows}
           ranks={ranks}
           requirements={job.requirements}
           sortDir={sortDir}
           onSort={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}
           onOpen={(c) => setSelectedId(c.id)}
           selectedId={selectedId}
+          showLabels={showLabels}
         />
+        {rows.length > visibleRows.length && (
+          <div className="flex items-center justify-center gap-3 border-t border-slate-100 px-4 py-3">
+            <span className="text-xs text-slate-500">
+              Showing {visibleRows.length} of {rows.length}
+            </span>
+            <Button variant="secondary" size="sm" onClick={() => setLimit((n) => n + PAGE)}>
+              Show {Math.min(PAGE, rows.length - visibleRows.length)} more
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setLimit(rows.length)}>
+              Show all
+            </Button>
+          </div>
+        )}
       </Card>
 
       {!demo && candidates.length === 0 && (
@@ -332,6 +371,7 @@ export function JobWorkspace({ job: savedJob, candidates: savedCandidates, actio
           actions={actions}
           currentUid={currentUid}
           onClose={() => setSelectedId(null)}
+          showLabel={showLabels}
         />
       )}
     </div>

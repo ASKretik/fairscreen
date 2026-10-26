@@ -115,3 +115,43 @@ def test_weights_must_sum_to_one(w):
 
 def test_weights_tolerate_float_rounding():
     Weights(must=0.1 + 0.2, nice=0.4, semantic=0.3)
+
+
+# --- tag weights ---------------------------------------------------------------------
+
+def test_equal_tag_weights_give_the_spec_formula():
+    verdicts = [v("met", 1), v("partial", 2), v("not_met", 3), v("met", 4)]
+    assert coverage(verdicts, {f"m{i}": 5 for i in range(1, 5)}) == pytest.approx(2.5 / 4)
+    assert coverage(verdicts, {}) == pytest.approx(2.5 / 4)
+
+
+def test_tag_weights_shift_coverage():
+    verdicts = [v("met", 1), v("not_met", 2)]
+    assert coverage(verdicts, {"m1": 5, "m2": 1}) == pytest.approx(5 / 6)
+    assert coverage(verdicts, {"m1": 1, "m2": 5}) == pytest.approx(1 / 6)
+    assert coverage(verdicts, {"m1": 1}) == pytest.approx(1 / 4)  # missing IDs count as the default, 3
+
+
+def test_score_and_rescore_use_tag_weights_without_touching_semantic():
+    from app.scoring import rescore
+
+    jd, prof = vectors_with_cosine(0.70)
+    ev = evaluation(["met", "not_met"], ["met"])
+    s = score(ev, jd, prof, Weights(), {"m1": 4, "m2": 1})
+    assert s.must_have == pytest.approx(0.8)
+    assert s.total == pytest.approx(100 * (0.5 * 0.8 + 0.2 * 1.0 + 0.3 * 0.5))
+    again = rescore(s, ev, Weights(must=1.0, nice=0.0, semantic=0.0), {"m1": 1, "m2": 4})
+    assert again.must_have == pytest.approx(0.2) and again.total == pytest.approx(20.0)
+    assert (again.semantic, again.semantic_raw, again.missing_must_have) == (s.semantic, s.semantic_raw, True)
+
+
+def test_tag_weights_are_validated():
+    from app.models import Requirement, WeightsUpdate
+
+    assert Requirement(id="m1", text="SQL", kind="skill").weight == 3
+    for bad in (0, 6):
+        with pytest.raises(ValidationError):
+            Requirement(id="m1", text="SQL", kind="skill", weight=bad)
+        with pytest.raises(ValidationError):
+            WeightsUpdate(tag_weights={"m1": bad})
+    assert WeightsUpdate(tag_weights={"m1": 5}).group_weights() == Weights()

@@ -47,8 +47,10 @@ function json(method: string, data?: unknown): RequestInit {
 }
 
 export const api = {
-  createJob(title: string, jdText: string) {
-    return request<{ id: string; requirements: JobRequirements }>("/jobs", json("POST", { title, jd_text: jdText }));
+  /** From a JD (tags are extracted by AI) or from the recruiter's own tags (no AI call). */
+  createJob(title: string, source: { jdText: string } | { requirements: JobRequirements }) {
+    const body = "jdText" in source ? { title, jd_text: source.jdText } : { title, requirements: source.requirements };
+    return request<{ id: string; requirements: JobRequirements }>("/jobs", json("POST", body));
   },
 
   updateRequirements(jobId: string, requirements: JobRequirements) {
@@ -69,8 +71,8 @@ export const api = {
     await request(`/jobs/${jobId}/candidates/${candidateId}/retry`, { method: "POST", body: form });
   },
 
-  async updateWeights(jobId: string, weights: Weights) {
-    await request(`/jobs/${jobId}/weights`, json("PATCH", weights));
+  async updateWeights(jobId: string, weights: Weights, tagWeights: Record<string, number>) {
+    await request(`/jobs/${jobId}/weights`, json("PATCH", { ...weights, tag_weights: tagWeights }));
   },
 
   async deleteJob(jobId: string) {

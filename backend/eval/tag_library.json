@@ -1,0 +1,74 @@
+{
+  "_comment": "Tag library for the preloaded demo (scripts/build_demo.py). Every demo resume is judged against every tag once; the page then re-ranks in the browser for any choice of tags and weights. Role defaults mirror eval/jds/*.txt. Changing a tag's text means re-running build_demo.py (new judging calls); changing defaults or weights does not.",
+  "roles": [
+    {
+      "id": "it",
+      "title": "IT Systems Administrator",
+      "category": "INFORMATION-TECHNOLOGY",
+      "must": ["it1", "it2", "it3", "it4", "it5", "it6"],
+      "nice": ["it7", "it8", "it9", "it10"]
+    },
+    {
+      "id": "finance",
+      "title": "Financial Analyst",
+      "category": "FINANCE",
+      "must": ["fin1", "fin2", "fin3", "fin4", "fin5"],
+      "nice": ["fin6", "fin7", "fin8", "fin9"]
+    },
+    {
+      "id": "hr",
+      "title": "HR Generalist",
+      "category": "HR",
+      "must": ["hr1", "hr2", "hr3", "hr4", "hr5", "hr6"],
+      "nice": ["hr7", "hr8", "hr9", "hr10"]
+    }
+  ],
+  "tags": [
+    { "id": "it1", "group": "it", "kind": "experience", "text": "3+ years in systems administration or IT support" },
+    { "id": "it2", "group": "it", "kind": "skill", "text": "Windows Server and Active Directory administration" },
+    { "id": "it3", "group": "it", "kind": "skill", "text": "Networking fundamentals (TCP/IP, DNS, DHCP, VLANs)" },
+    { "id": "it4", "group": "it", "kind": "experience", "text": "End-user hardware and software support" },
+    { "id": "it5", "group": "it", "kind": "skill", "text": "Virtualization (VMware or Hyper-V)" },
+    { "id": "it6", "group": "it", "kind": "education", "text": "Bachelor's in IT, Computer Science or related field, or equivalent experience" },
+    { "id": "it7", "group": "it", "kind": "certification", "text": "CompTIA A+, Network+, Security+ or a Microsoft certification" },
+    { "id": "it8", "group": "it", "kind": "skill", "text": "PowerShell scripting" },
+    { "id": "it9", "group": "it", "kind": "skill", "text": "Azure or AWS" },
+    { "id": "it10", "group": "it", "kind": "other", "text": "ITIL practices" },
+    { "id": "it11", "group": "it", "kind": "skill", "text": "Microsoft 365 or Exchange administration" },
+    { "id": "it12", "group": "it", "kind": "skill", "text": "Firewalls, VPN and network security" },
+    { "id": "it13", "group": "it", "kind": "skill", "text": "Help-desk ticketing systems" },
+
+    { "id": "fin1", "group": "finance", "kind": "education", "text": "Bachelor's in Finance, Accounting, Economics or related field" },
+    { "id": "fin2", "group": "finance", "kind": "experience", "text": "2+ years in financial analysis, FP&A or accounting" },
+    { "id": "fin3", "group": "finance", "kind": "skill", "text": "Advanced Excel (pivot tables, lookups, financial modelling)" },
+    { "id": "fin4", "group": "finance", "kind": "experience", "text": "Budgeting, forecasting and variance analysis" },
+    { "id": "fin5", "group": "finance", "kind": "skill", "text": "GAAP and financial statements" },
+    { "id": "fin6", "group": "finance", "kind": "certification", "text": "CPA or CFA (in progress or complete)" },
+    { "id": "fin7", "group": "finance", "kind": "skill", "text": "ERP system (SAP, Oracle or NetSuite)" },
+    { "id": "fin8", "group": "finance", "kind": "skill", "text": "SQL, Power BI or Tableau" },
+    { "id": "fin9", "group": "finance", "kind": "experience", "text": "Manufacturing or consumer-goods industry" },
+    { "id": "fin10", "group": "finance", "kind": "experience", "text": "Month-end close and account reconciliations" },
+    { "id": "fin11", "group": "finance", "kind": "skill", "text": "Financial modelling for pricing or capital expenditure" },
+
+    { "id": "hr1", "group": "hr", "kind": "experience", "text": "3+ years as an HR Generalist or in a similar HR role" },
+    { "id": "hr2", "group": "hr", "kind": "experience", "text": "Full-cycle recruitment and onboarding" },
+    { "id": "hr3", "group": "hr", "kind": "experience", "text": "Employee relations" },
+    { "id": "hr4", "group": "hr", "kind": "skill", "text": "US employment law (FLSA, FMLA, ADA, EEO)" },
+    { "id": "hr5", "group": "hr", "kind": "skill", "text": "HRIS such as Workday, ADP or BambooHR" },
+    { "id": "hr6", "group": "hr", "kind": "education", "text": "Bachelor's in Human Resources, Business Administration or related field" },
+    { "id": "hr7", "group": "hr", "kind": "certification", "text": "SHRM-CP or PHR certification" },
+    { "id": "hr8", "group": "hr", "kind": "experience", "text": "Benefits administration or payroll" },
+    { "id": "hr9", "group": "hr", "kind": "experience", "text": "Designing or delivering training programmes" },
+    { "id": "hr10", "group": "hr", "kind": "experience", "text": "Healthcare industry" },
+    { "id": "hr11", "group": "hr", "kind": "experience", "text": "Performance management and reviews" },
+
+    { "id": "g1", "group": "general", "kind": "experience", "text": "5+ years of professional experience" },
+    { "id": "g2", "group": "general", "kind": "experience", "text": "Team leadership or people management" },
+    { "id": "g3", "group": "general", "kind": "skill", "text": "Project management" },
+    { "id": "g4", "group": "general", "kind": "experience", "text": "Customer service or client-facing work" },
+    { "id": "g5", "group": "general", "kind": "education", "text": "Master's degree" },
+    { "id": "g6", "group": "general", "kind": "skill", "text": "Data analysis and reporting" },
+    { "id": "g7", "group": "general", "kind": "other", "text": "Process improvement" },
+    { "id": "g8", "group": "general", "kind": "experience", "text": "Sales or business development" }
+  ]
+}

@@ -63,7 +63,7 @@ export function JobPage() {
       saveRequirements: async (req) => {
         await api.updateRequirements(jobId, req);
       },
-      saveWeights: (w) => api.updateWeights(jobId, w),
+      saveWeights: (w, tagWeights) => api.updateWeights(jobId, w, tagWeights),
       deleteJob: async () => {
         await api.deleteJob(jobId);
         navigate("/jobs");

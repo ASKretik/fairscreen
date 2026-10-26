@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { formatMonths, percent, requirementMap } from "../lib/candidates";
+import { formatMonths, percent, requirementMap, tagWeight } from "../lib/candidates";
+import { labelName } from "../lib/demoPool";
 import type { Candidate, Decision, Job, RevealedIdentity, RequirementVerdict, WorkspaceActions } from "../types";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { ScoreBar } from "./ScoreBar";
@@ -12,6 +13,8 @@ interface Props {
   actions: WorkspaceActions;
   currentUid: string | null;
   onClose(): void;
+  /** Demo pool: show the resume's dataset category. */
+  showLabel?: boolean;
 }
 
 const VERDICT = {
@@ -104,6 +107,7 @@ function Checklist({ verdicts, job }: { verdicts: RequirementVerdict[]; job: Job
     <ul className="space-y-3">
       {verdicts.map((v) => {
         const style = VERDICT[v.verdict];
+        const req = reqs.get(v.req_id);
         return (
           <li key={v.req_id} className="flex gap-3">
             <span
@@ -114,10 +118,11 @@ function Checklist({ verdicts, job }: { verdicts: RequirementVerdict[]; job: Job
             >
               {style.icon}
             </span>
-            <div className="min-w-0">
-              <p className="text-sm text-slate-900">{reqs.get(v.req_id)?.text ?? v.req_id}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-slate-900">{req?.text ?? v.req_id}</p>
               {v.evidence && <p className="mt-0.5 text-xs text-slate-500">{v.evidence}</p>}
             </div>
+            {req && <span className="shrink-0 text-xs text-slate-400 tabular-nums" title="Tag weight (1–5)">×{tagWeight(req)}</span>}
           </li>
         );
       })}
@@ -131,7 +136,7 @@ const DECISIONS: { value: Decision; label: string }[] = [
   { value: "rejected", label: "Reject" },
 ];
 
-export function CandidateDrawer({ candidate: c, job, actions, currentUid, onClose }: Props) {
+export function CandidateDrawer({ candidate: c, job, actions, currentUid, onClose, showLabel = false }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -308,8 +313,8 @@ export function CandidateDrawer({ candidate: c, job, actions, currentUid, onClos
               </div>
               <div className="mt-4 space-y-3">
                 {[
-                  { label: "Must-have requirements", value: s.must_have, weight: w.must },
-                  { label: "Nice-to-have requirements", value: s.nice_to_have, weight: w.nice },
+                  { label: "Must-have tags", value: s.must_have, weight: w.must },
+                  { label: "Nice-to-have tags", value: s.nice_to_have, weight: w.nice },
                   { label: "Semantic match to the job", value: s.semantic, weight: w.semantic },
                 ].map((row) => (
                   <div key={row.label}>
@@ -324,15 +329,15 @@ export function CandidateDrawer({ candidate: c, job, actions, currentUid, onClos
                 ))}
               </div>
               <p className="mt-3 text-xs text-slate-400">
-                Computed in code from the checklist below and an embedding similarity (raw cosine {s.semantic_raw.toFixed(3)}).
-                Institution names are never scored.
+                Computed in code from the weighted checklist below and an embedding similarity (raw cosine{" "}
+                {s.semantic_raw.toFixed(3)}). Institution names are never scored.
               </p>
             </Section>
 
-            <Section title="Must-have requirements">
+            <Section title="Must-have tags">
               <Checklist verdicts={ev.must_have} job={job} />
             </Section>
-            <Section title="Nice-to-have requirements">
+            <Section title="Nice-to-have tags">
               <Checklist verdicts={ev.nice_to_have} job={job} />
             </Section>
 
@@ -370,6 +375,9 @@ export function CandidateDrawer({ candidate: c, job, actions, currentUid, onClos
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-xs text-amber-800">
                     Photo detected and hidden
                   </span>
+                )}
+                {showLabel && c.label && (
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700">Dataset: {labelName(c.label)}</span>
                 )}
                 {p.total_experience_months !== null && (
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700">

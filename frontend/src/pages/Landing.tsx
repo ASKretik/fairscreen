@@ -10,7 +10,7 @@ import { workspaceEnabled } from "../lib/firebase";
 const PROOF = [
   { value: "7", label: "identity signals hidden while you screen" },
   { value: "0", label: "resume files stored, ever" },
-  { value: "3", label: "signals in every score, weighted your way" },
+  { value: "1–5", label: "weight on every screening tag, set by you" },
   { value: "20", label: "PDF resumes screened per upload" },
 ];
 
@@ -32,13 +32,13 @@ const PROBLEMS = [
 const STEPS: { icon: IconName; title: string; body: string }[] = [
   {
     icon: "document",
-    title: "Paste the job description",
-    body: "FairScreen turns it into a checklist of must-have and nice-to-have requirements. You review and edit it before screening starts.",
+    title: "Set your screening tags",
+    body: "Paste a job description and FairScreen turns it into must-have and nice-to-have tags, or write your own. Give each tag a weight from 1 to 5.",
   },
   {
     icon: "upload",
     title: "Upload up to 20 PDF resumes",
-    body: "Each resume is parsed, stripped of identity details and checked against every requirement in the background, with live progress.",
+    body: "Each resume is parsed, stripped of identity details and checked against every tag in the background, with live progress.",
   },
   {
     icon: "list",
@@ -51,12 +51,12 @@ const FEATURES: { icon: IconName; title: string; body: string }[] = [
   {
     icon: "checkCircle",
     title: "Evidence for every verdict",
-    body: "Each requirement is marked met, partial or not met, with a pointer to what in the resume supports it. No unexplained numbers.",
+    body: "Each tag is marked met, partial or not met, with a pointer to what in the resume supports it. No unexplained numbers.",
   },
   {
     icon: "chart",
     title: "A score computed in plain sight",
-    body: "The AI judges requirements; the score is simple arithmetic you can read, reproduce and re-weight without another AI call.",
+    body: "The AI judges tags; the score is simple arithmetic you can read, reproduce and re-weight without another AI call.",
   },
   {
     icon: "eyeSlash",
@@ -70,8 +70,8 @@ const FEATURES: { icon: IconName; title: string; body: string }[] = [
   },
   {
     icon: "sliders",
-    title: "Weights you control",
-    body: "Decide how much must-haves, nice-to-haves and overall fit count. The ranking updates while you drag.",
+    title: "Your tags, your weights",
+    body: "Weight each tag from 1 to 5 and decide how much must-haves, nice-to-haves and overall fit count. The ranking updates as you change them.",
   },
   {
     icon: "download",
@@ -103,7 +103,8 @@ const PLANS: Plan[] = [
       "20 PDF resumes per upload",
       "Blind ranking with an evidence checklist",
       "Reveal gate and audit log",
-      "Adjustable weights and CSV export",
+      "Custom tags with 1–5 weights",
+      "CSV export",
     ],
     available: true,
   },
@@ -143,7 +144,11 @@ const FAQS: { q: string; a: ReactNode }[] = [
   },
   {
     q: "How is the score calculated?",
-    a: "Must-have coverage counts for 50%, nice-to-have coverage for 20% and semantic similarity to the job for 30%, with partial matches counting half. You can change the weights per job. The AI never picks the number.",
+    a: "Each tag is marked met (counts 1), partial (counts half) or not met (0), and you weight each tag from 1 to 5 within its group. By default must-have tags count for 50%, nice-to-have tags for 20% and semantic similarity to the job for 30%; you can change all of it per job. The AI never picks the number.",
+  },
+  {
+    q: "Can I write my own tags?",
+    a: "Yes. Write your own when you create a job, or edit and add to the ones extracted from your job description. Tags lock once screening starts, so every candidate is judged on the same list, but their weights can change at any time.",
   },
   {
     q: "Why can I see the college?",
@@ -465,13 +470,13 @@ export function Landing() {
             <p className="text-sm font-semibold text-indigo-600">Transparent scoring</p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">No black-box numbers</h2>
             <p className="mt-4 text-slate-600">
-              The AI answers one narrow question per requirement: is there evidence for it? The score is then plain arithmetic, so
+              The AI answers one narrow question per tag: is there evidence for it? The score is then plain arithmetic, so
               the same resume always gets the same number, and you can see exactly where it came from.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-slate-700">
               {[
                 "Partial matches count half; missing ones count zero.",
-                "Change the weights per job and the ranking updates instantly, with no new AI calls.",
+                "Weight each tag 1–5 and rebalance the score per job; the ranking updates instantly, with no new AI calls.",
                 "A missing must-have is flagged, never auto-rejected. People make the call.",
               ].map((x) => (
                 <li key={x} className="flex gap-2">
@@ -561,7 +566,8 @@ export function Landing() {
         <div className="mx-auto max-w-5xl rounded-3xl bg-indigo-600 px-6 py-14 text-center shadow-xl shadow-indigo-600/20 sm:px-12">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">See a blind shortlist in 30 seconds</h2>
           <p className="mx-auto mt-4 max-w-xl text-indigo-100">
-            Open the demo: a sample job, a ranked set of anonymised candidates, and the shortlist-then-reveal flow. No sign-in.
+            Open the demo: pick a role, tune the tags and their weights, and watch a pool of anonymised resumes re-rank. No
+            sign-in.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link to="/demo" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm hover:bg-indigo-50">

@@ -102,6 +102,30 @@ def test_create_job_validates_body(env):
     client, *_ = env
     assert client.post("/jobs", json={"title": "", "jd_text": JD}, headers=ALICE).status_code == 422
     assert client.post("/jobs", json={"title": "t", "jd_text": "too short"}, headers=ALICE).status_code == 422
+    assert client.post("/jobs", json={"title": "t"}, headers=ALICE).status_code == 422
+
+
+OWN_TAGS = {
+    "role_title": "Data Analyst",
+    "must_have": [{"id": "x", "text": "SQL", "kind": "skill", "weight": 5}, {"id": "y", "text": " ", "kind": "skill"}],
+    "nice_to_have": [{"id": "z", "text": "Tableau", "kind": "skill", "weight": 1}],
+    "min_years_experience": None,
+    "education_requirement": None,
+}
+
+
+def test_create_job_from_own_tags_skips_jd_parsing(env):
+    client, store, _ = env
+    r = client.post("/jobs", json={"title": "Analyst", "requirements": OWN_TAGS}, headers=ALICE)
+    assert r.status_code == 201, r.text
+    stored = store.jobs[r.json()["id"]]
+    assert stored["jdText"] == ""
+    assert [(t["id"], t["text"], t["weight"]) for t in stored["requirements"]["must_have"]] == [("m1", "SQL", 5)]
+    assert [(t["id"], t["weight"]) for t in stored["requirements"]["nice_to_have"]] == [("n1", 1)]
+    no_must = {**OWN_TAGS, "must_have": []}
+    assert client.post("/jobs", json={"title": "A", "requirements": no_must}, headers=ALICE).status_code == 422
+    heavy = {**OWN_TAGS, "must_have": [{"id": "x", "text": "SQL", "kind": "skill", "weight": 9}]}
+    assert client.post("/jobs", json={"title": "A", "requirements": heavy}, headers=ALICE).status_code == 422
 
 
 def test_edit_requirements_then_locked_after_upload(env):
@@ -359,6 +383,32 @@ def test_weights_must_sum_to_one_and_wait_for_processing(env):
                         headers=ALICE).status_code == 409
     assert client.patch(f"/jobs/{job_id}/weights", json={"must": 0.4, "nice": 0.3, "semantic": 0.3},
                         headers=BOB).status_code == 404
+
+
+def test_tag_weights_rescore_from_the_checklist(env):
+    client, store, gemini = env
+    job_id, cid = scored_candidate(client, store)
+    store.candidates[job_id][cid]["evaluation"]["must_have"][0]["verdict"] = "not_met"  # m1 missing, m2 and m3 met
+    evals_before = len(gemini.eval_inputs)
+    body = {"must": 1.0, "nice": 0.0, "semantic": 0.0, "tag_weights": {"m1": 5, "m2": 1, "m3": 1}}
+    r = client.patch(f"/jobs/{job_id}/weights", json=body, headers=ALICE)
+    assert r.status_code == 200, r.text
+    assert r.json()["tag_weights"] == {"m1": 5, "m2": 1, "m3": 1, "n1": 3}
+    score = store.candidates[job_id][cid]["score"]
+    assert score["must_have"] == pytest.approx(2 / 7) and score["total"] == pytest.approx(100 * 2 / 7)
+    assert [t["weight"] for t in store.jobs[job_id]["requirements"]["must_have"]] == [5, 1, 1]
+    assert store.jobs[job_id]["requirementsLocked"] is True  # tags stay locked; only weights changed
+    assert len(gemini.eval_inputs) == evals_before
+
+
+def test_tag_weights_validation(env):
+    client, store, _ = env
+    job_id, _ = scored_candidate(client, store)
+    base = {"must": 0.5, "nice": 0.2, "semantic": 0.3}
+    assert client.patch(f"/jobs/{job_id}/weights", json={**base, "tag_weights": {"zz": 2}},
+                        headers=ALICE).status_code == 422
+    assert client.patch(f"/jobs/{job_id}/weights", json={**base, "tag_weights": {"m1": 0}},
+                        headers=ALICE).status_code == 422
 
 
 def test_delete_job_removes_candidates_and_identity(env):

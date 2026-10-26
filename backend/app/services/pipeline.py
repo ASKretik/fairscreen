@@ -105,7 +105,7 @@ async def process_resume(
         gemini.evaluate(profile, requirements),
         gemini.embed(profile_embedding_text(profile)),
     )
-    breakdown = scoring.score(evaluation, jd_embedding, profile_embedding, weights)
+    breakdown = scoring.score(evaluation, jd_embedding, profile_embedding, weights, scoring.tag_weights(requirements))
     return ResumeResult(
         sha256=sha,
         profile=profile,

@@ -1,11 +1,11 @@
 # FairScreen: blind resume screening
 
-A recruiter pastes a job description and uploads a batch of PDF resumes. FairScreen returns a ranked **blind** shortlist: each candidate gets a score, a requirement-by-requirement checklist with evidence and a two-sentence explanation, without the recruiter seeing names or other identity details until they shortlist someone.
+A recruiter sets the **tags** a role needs (extracted from a job description, or written by hand) and gives each one a **weight from 1 to 5**, then uploads a batch of PDF resumes. FairScreen returns a ranked **blind** shortlist: each candidate gets a score, a tag-by-tag checklist with evidence and a two-sentence explanation, without the recruiter seeing names or other identity details until they shortlist someone.
 
 Built entirely on pretrained models through APIs (Gemini), with **no model training**.
 
 - **Live site:** <https://askretik.github.io/fairscreen/>
-- **Interactive demo (no sign-in, no server):** <https://askretik.github.io/fairscreen/demo>
+- **Live demo (no sign-in, no server):** <https://askretik.github.io/fairscreen/demo>: a preloaded pool of 100 resumes (96 from the Kaggle Resume Dataset, 4 synthetic) that re-ranks in the browser as you change the role, the tags and their weights.
 
 The site deploys to GitHub Pages on every push to `main`. Until the backend is connected (see [Deploying](#deploying)) it runs **demo-only**: the landing page and the demo work, and sign-in is hidden.
 
@@ -15,7 +15,7 @@ The site deploys to GitHub Pages on every push to `main`. Until the backend is c
 |---|---|
 | ![Ranked blind shortlist](docs/screenshot-table.png) | ![Candidate drawer with checklist and reveal gate](docs/screenshot-drawer.png) |
 
-*(The demo uses placeholder data with fictional candidates until `build_demo.py` has run on real model output.)*
+*(Until `build_demo.py` has run on the Kaggle pool, the demo shows five fictional placeholder candidates for one role.)*
 
 ## The problem
 
@@ -23,11 +23,21 @@ Small companies screen 10–50 applicants per role by hand. That is slow, incons
 
 ## How it works
 
-1. **Paste the job description.** Gemini extracts 3–8 must-have and 0–8 nice-to-have requirements; the recruiter edits them before screening starts.
-2. **Upload up to 20 PDF resumes.** Each one is parsed, anonymised, checked against every requirement and scored in the background, with live progress.
+1. **Set the tags.** Paste a job description and Gemini extracts 3–8 must-have and 0–8 nice-to-have tags, or write your own (no AI call). Give each tag a weight from 1 (low) to 5 (critical); 3 is normal.
+2. **Upload up to 20 PDF resumes.** Each one is parsed, anonymised, checked against every tag and scored in the background, with live progress.
 3. **Review the ranked blind shortlist.** Every score comes with evidence. Shortlist a candidate to reveal who they are; each reveal is logged with time and user.
 
-A failed resume can be retried from the browser tab that uploaded it (the tab still holds the file; the server never stores PDFs). Recruiters can also re-weight the score with sliders and delete a job.
+Tags lock once resumes are uploaded, so every candidate is judged on the same list, but **weights can change at any time**: the table re-ranks live and saving recomputes every score from its checklist, with no new AI calls. A failed resume can be retried from the browser tab that uploaded it (the tab still holds the file; the server never stores PDFs). Jobs can be deleted.
+
+## Live demo: 100 preloaded resumes
+
+`backend/scripts/build_demo.py` builds `frontend/public/demo/demo_pool.json` once, offline:
+
+- **Pool (100 resumes):** 96 from the Kaggle Resume Dataset (24 each from IT, Finance and HR, 24 from other categories; a superset of the 30-resume eval pool, seed 42, IDs in `backend/eval/demo_pool.json`) plus the 4 synthetic resumes.
+- **Tag library:** 43 tags in `backend/eval/tag_library.json`: the defaults for three roles (IT Systems Administrator, Financial Analyst, HR Generalist, mirroring `backend/eval/jds/`), extra tags per role and general tags.
+- **One judging call per resume:** each anonymised profile is checked against all 43 tags at once (met / partial / not met with evidence), and embedded once; the cosine to each role is precomputed. Roughly 100 parse calls, 100 judging calls and 103 embeddings in total, all cached and resumable.
+
+The page then scores the pool **in the browser** with the same formula as the backend, for any role, tags and weights, so it costs no API calls per visitor and never sleeps. Viewers can also type their own tags; those weren't judged by the AI, so they are matched by **keywords** against the blind profile (never institution or employer names) and labelled approximate. Only blind data is published, plus the identities of the four fictional people so the reveal flow can be tried.
 
 ## Architecture
 
@@ -70,13 +80,14 @@ Browser (React, Firebase Hosting)
 ## Scoring
 
 ```
-must     = (met + 0.5 × partial) / n_must            (1.0 if there are no must-haves)
-nice     = (met + 0.5 × partial) / n_nice            (1.0 if there are no nice-to-haves)
-semantic = clip((cosine − LO) / (HI − LO), 0, 1)     LO, HI calibrated on the eval pool
-total    = 100 × (0.5 × must + 0.2 × nice + 0.3 × semantic)
+value(tag) = 1 if met, 0.5 if partial, 0 if not met;   w(tag) = the tag's weight, 1–5 (default 3)
+must     = Σ w·value / Σ w   over must-have tags       (1.0 if there are none)
+nice     = Σ w·value / Σ w   over nice-to-have tags    (1.0 if there are none)
+semantic = clip((cosine − LO) / (HI − LO), 0, 1)       LO, HI calibrated on the eval pool
+total    = 100 × (W_must × must + W_nice × nice + W_sem × semantic)   W defaults 0.5 / 0.2 / 0.3
 ```
 
-The LLM judges each requirement; the number is computed in code, so it is reproducible, explainable, and re-weightable without new API calls (the weight sliders re-rank live). A missing must-have shows a badge but never auto-rejects.
+With equal tag weights, `must` and `nice` are exactly SPEC §7.4's `(met + 0.5 × partial) / n`. The LLM judges each tag and never sees its weight; the number is computed in code, so it is reproducible, explainable, and re-weightable without new API calls. A missing must-have shows a badge but never auto-rejects.
 
 ## Evaluation
 
@@ -101,6 +112,8 @@ With 8 relevant resumes per JD, the best possible precision@10 is 0.8. Cosine ca
 - **Free-tier data use.** On the Gemini free tier, Google may use prompts and responses to improve its products. The demo and the evaluation use only public (Kaggle) or **synthetic** resumes. A production deployment would use the paid tier, which excludes this.
 - **Synthetic resumes.** The Kaggle resumes carry no names or contact details, so the demo adds four fictional people (`backend/eval/synthetic/`, generated by `backend/scripts/make_synthetic_resumes.py`) to show blind mode and reveal. They are labelled synthetic in the PDF and in the UI.
 - **Scale.** Free-tier rate limits, in-process background tasks and Render's free instance (which sleeps and restarts) suit tens of resumes per job, not thousands; 1,000 resumes per job would need the batch API or paid tier and a real job queue.
+- **Viewer-typed tags in the demo are approximate.** They are matched by keywords in the browser, not judged by the AI (that would cost one AI call per resume per tag, for every visitor). The demo's semantic component is the similarity to the chosen role's default tags and doesn't change as tags are edited.
+- **Tags lock after the first upload.** Changing what is checked would need every candidate re-judged; weights stay editable because they only change the arithmetic.
 - **Render cold start.** The first request after the backend sleeps can take up to a minute; the app shows a banner, and `/demo` doesn't need the backend at all.
 
 ## Privacy and security
@@ -138,15 +151,20 @@ npm run dev                     # http://localhost:5173
 npm test                        # unit and blind-rendering tests
 ```
 
-**Demo data and evaluation:**
+**Demo data and evaluation** (needs a Gemini key in `backend/.env` and a Kaggle API token in `~/.kaggle/kaggle.json`):
 
 ```bash
 cd backend
+.venv/bin/pip install kaggle
+.venv/bin/kaggle datasets download -d snehaanbhawal/resume-dataset -p eval/data --unzip   # gitignored
 .venv/bin/python scripts/make_synthetic_resumes.py
-.venv/bin/python scripts/build_demo.py --jd eval/jds/information-technology.txt --resumes eval/synthetic <folder of ~6 Kaggle IT PDFs>
-.venv/bin/python eval/run_eval.py --dry-run   # shows the pool and the API-call plan
-.venv/bin/python eval/run_eval.py             # resumable; throttled by GEMINI_*_RPM in .env
+.venv/bin/python scripts/build_demo.py --dry-run   # the 100-resume pool and the API-call plan
+.venv/bin/python scripts/build_demo.py             # writes frontend/public/demo/demo_pool.json
+.venv/bin/python eval/run_eval.py --dry-run        # the 30-resume eval pool (inside the demo pool)
+.venv/bin/python eval/run_eval.py                  # reuses the demo's parses and embeddings
 ```
+
+Both scripts are resumable (everything is cached under `.cache/`) and throttled by `GEMINI_*_RPM` in `.env`. Together they make about 100 parse calls, 190 judging calls and 110 embeddings; if a daily free-tier quota runs out, re-run the same command after it resets.
 
 ## Deploying
 
@@ -181,11 +199,12 @@ backend/
   app/        main.py config.py auth.py deps.py models.py blind.py scoring.py cache.py leaks.py
               routers/{jobs,candidates}.py  services/{gemini,pipeline,firestore}.py
   scripts/    run_local.py  build_demo.py  make_synthetic_resumes.py
-  eval/       run_eval.py  metrics.py  chart.py  jds/  synthetic/  results/  data/ (gitignored)
+  eval/       run_eval.py  metrics.py  chart.py  tag_library.json  pool.json  demo_pool.json
+              jds/  synthetic/  results/  data/ (gitignored)
   tests/
 frontend/
-  src/        pages/  components/  lib/  auth/  types.ts
-  public/demo/demo_job.json
+  src/        pages/  components/  lib/  auth/  types.ts  test-data/
+  public/demo/demo_pool.json
 ```
 
 Design decisions and assumptions made during implementation are logged in [`decisionsp4.md`](decisionsp4.md).

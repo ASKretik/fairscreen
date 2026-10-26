@@ -1,12 +1,19 @@
+import { DEFAULT_TAG_WEIGHT, tagWeight } from "../lib/candidates";
 import type { JobRequirements, ReqKind, Requirement } from "../types";
 import { Button } from "./ui";
+import { TagWeightPicker } from "./WeightSliders";
 
 const KINDS: ReqKind[] = ["skill", "experience", "education", "certification", "other"];
 export const MAX_MUST = 8;
 export const MAX_NICE = 8;
 
 let tempId = 0;
-const newRequirement = (prefix: string): Requirement => ({ id: `${prefix}-new-${++tempId}`, text: "", kind: "skill" });
+export const newRequirement = (prefix: string): Requirement => ({
+  id: `${prefix}-new-${++tempId}`,
+  text: "",
+  kind: "skill",
+  weight: DEFAULT_TAG_WEIGHT,
+});
 
 function RequirementList({
   title,
@@ -40,11 +47,12 @@ function RequirementList({
               aria-label={`${title} ${i + 1}`}
               className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <TagWeightPicker value={tagWeight(r)} onChange={(weight) => update(i, { weight })} label={r.text || `${title} ${i + 1}`} />
               <select
                 value={r.kind}
                 onChange={(e) => update(i, { kind: e.target.value as ReqKind })}
-                aria-label="Requirement type"
+                aria-label="Tag type"
                 className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none"
               >
                 {KINDS.map((k) => (
@@ -53,7 +61,7 @@ function RequirementList({
                   </option>
                 ))}
               </select>
-              <Button variant="ghost" size="sm" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label="Remove requirement">
+              <Button variant="ghost" size="sm" onClick={() => onChange(items.filter((_, j) => j !== i))} aria-label="Remove tag">
                 Remove
               </Button>
             </div>
@@ -67,7 +75,7 @@ function RequirementList({
         disabled={items.length >= max}
         onClick={() => onChange([...items, newRequirement(prefix)])}
       >
-        + Add {items.length >= max ? `(max ${max})` : ""}
+        + Add tag {items.length >= max ? `(max ${max})` : ""}
       </Button>
     </fieldset>
   );
@@ -78,7 +86,7 @@ export function validateRequirements(req: JobRequirements): string | null {
   const must = req.must_have.filter((r) => r.text.trim());
   const nice = req.nice_to_have.filter((r) => r.text.trim());
   if (!req.role_title.trim()) return "Add a role title.";
-  if (must.length < 1) return "Add at least one must-have requirement.";
+  if (must.length < 1) return "Add at least one must-have tag.";
   if (must.length > MAX_MUST || nice.length > MAX_NICE) return `Use at most ${MAX_MUST} must-haves and ${MAX_NICE} nice-to-haves.`;
   return null;
 }
@@ -95,16 +103,16 @@ export function RequirementEditor({ value, onChange }: { value: JobRequirements;
         />
       </label>
       <RequirementList
-        title="Must-have requirements"
-        hint="Each one is checked against every resume. Missing one shows a badge but never auto-rejects."
+        title="Must-have tags"
+        hint="Each tag is checked against every resume. Missing one shows a badge but never auto-rejects. The 1–5 buttons set the tag's weight within its group (3 is normal)."
         items={value.must_have}
         max={MAX_MUST}
         prefix="m"
         onChange={(must_have) => onChange({ ...value, must_have })}
       />
       <RequirementList
-        title="Nice-to-have requirements"
-        hint="Count for less in the score."
+        title="Nice-to-have tags"
+        hint="Count for less in the score overall; weights work the same way."
         items={value.nice_to_have}
         max={MAX_NICE}
         prefix="n"

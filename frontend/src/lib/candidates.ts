@@ -1,4 +1,41 @@
-import type { Candidate, Education, JobRequirements, Requirement, RequirementVerdict, Weights } from "../types";
+import type { Candidate, Education, JobRequirements, Requirement, RequirementVerdict, Verdict, Weights } from "../types";
+
+export const DEFAULT_TAG_WEIGHT = 3;
+export const TAG_WEIGHTS = [1, 2, 3, 4, 5] as const;
+const VERDICT_VALUE: Record<Verdict, number> = { met: 1, partial: 0.5, not_met: 0 };
+
+export const tagWeight = (r: Pick<Requirement, "weight"> | undefined): number => r?.weight ?? DEFAULT_TAG_WEIGHT;
+
+/** Tag weights by requirement ID. */
+export function tagWeightMap(req: JobRequirements): Map<string, number> {
+  return new Map([...req.must_have, ...req.nice_to_have].map((r) => [r.id, tagWeight(r)]));
+}
+
+/**
+ * Same formula as backend scoring.coverage: the weighted mean of verdict values (met 1, partial
+ * 0.5), 1 with no requirements. Equal weights give (met + 0.5 * partial) / n.
+ */
+export function weightedCoverage(verdicts: RequirementVerdict[], weights: Map<string, number>): number {
+  if (verdicts.length === 0) return 1;
+  let num = 0;
+  let den = 0;
+  for (const v of verdicts) {
+    const w = weights.get(v.req_id) ?? DEFAULT_TAG_WEIGHT;
+    num += w * VERDICT_VALUE[v.verdict];
+    den += w;
+  }
+  return den > 0 ? num / den : 1;
+}
+
+/** Each tag's share of the total score (0–1), given the group weights. */
+export function tagShares(req: JobRequirements, w: Weights): Map<string, number> {
+  const shares = new Map<string, number>();
+  for (const [items, groupWeight] of [[req.must_have, w.must], [req.nice_to_have, w.nice]] as const) {
+    const sum = items.reduce((s, r) => s + tagWeight(r), 0);
+    items.forEach((r) => shares.set(r.id, sum ? (groupWeight * tagWeight(r)) / sum : 0));
+  }
+  return shares;
+}
 
 const DECIDED = new Set(["scored", "shortlisted", "rejected"]);
 
@@ -91,11 +128,18 @@ export function combine(must: number, nice: number, semantic: number, w: Weights
   return Math.min(100, Math.max(0, 100 * (w.must * must + w.nice * nice + w.semantic * semantic)));
 }
 
-/** Candidates with score.total recomputed for preview weights (no API call). */
-export function rescore(cands: Candidate[], w: Weights): Candidate[] {
-  return cands.map((c) =>
-    c.score ? { ...c, score: { ...c.score, total: combine(c.score.must_have, c.score.nice_to_have, c.score.semantic, w) } } : c,
-  );
+/**
+ * Candidates rescored for (preview) group and tag weights, from their checklists: no API call.
+ * Same as backend scoring.rescore.
+ */
+export function rescore(cands: Candidate[], w: Weights, req: JobRequirements): Candidate[] {
+  const weights = tagWeightMap(req);
+  return cands.map((c) => {
+    if (!c.score || !c.evaluation) return c;
+    const must = weightedCoverage(c.evaluation.must_have, weights);
+    const nice = weightedCoverage(c.evaluation.nice_to_have, weights);
+    return { ...c, score: { ...c.score, must_have: must, nice_to_have: nice, total: combine(must, nice, c.score.semantic, w) } };
+  });
 }
 
 /**

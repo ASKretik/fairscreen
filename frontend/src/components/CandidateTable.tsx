@@ -1,4 +1,5 @@
 import { coverage, primaryEducation, topGap, topMatches, truncate } from "../lib/candidates";
+import { labelName } from "../lib/demoPool";
 import type { Candidate, JobRequirements } from "../types";
 import { ScoreBar } from "./ScoreBar";
 import { StatusChip } from "./StatusChip";
@@ -11,10 +12,12 @@ interface Props {
   onSort(): void;
   onOpen(c: Candidate): void;
   selectedId: string | null;
+  /** Demo pool: show each resume's dataset category. */
+  showLabels?: boolean;
 }
 
 /** The blind ranked table. It never renders identity or file names, revealed or not. */
-export function CandidateTable({ rows, ranks, requirements, sortDir, onSort, onOpen, selectedId }: Props) {
+export function CandidateTable({ rows, ranks, requirements, sortDir, onSort, onOpen, selectedId, showLabels = false }: Props) {
   if (rows.length === 0) {
     return <p className="px-6 py-12 text-center text-sm text-slate-500">No candidates here yet.</p>;
   }
@@ -25,6 +28,7 @@ export function CandidateTable({ rows, ranks, requirements, sortDir, onSort, onO
           <tr>
             <th className="px-4 py-3">#</th>
             <th className="px-4 py-3">Candidate</th>
+            {showLabels && <th className="px-4 py-3">Dataset</th>}
             <th className="px-4 py-3">
               <button type="button" onClick={onSort} className="inline-flex items-center gap-1 uppercase hover:text-slate-800">
                 Score <span aria-hidden="true">{sortDir === "desc" ? "↓" : "↑"}</span>
@@ -47,7 +51,7 @@ export function CandidateTable({ rows, ranks, requirements, sortDir, onSort, onO
                 <tr key={c.id} className={base} onClick={() => onOpen(c)}>
                   <td className="px-4 py-3 text-slate-400">–</td>
                   <td className="px-4 py-3 font-mono text-sm font-medium whitespace-nowrap text-slate-800">{c.anonId}</td>
-                  <td className="px-4 py-3 text-slate-500" colSpan={5}>
+                  <td className="px-4 py-3 text-slate-500" colSpan={showLabels ? 6 : 5}>
                     {c.status === "failed" ? (
                       <span className="text-amber-800">{truncate(c.error ?? "Processing failed.", 90)}</span>
                     ) : (
@@ -79,6 +83,11 @@ export function CandidateTable({ rows, ranks, requirements, sortDir, onSort, onO
                   </button>
                   {c.revealed && <span className="ml-2 rounded bg-indigo-50 px-1.5 py-0.5 text-[11px] font-medium text-indigo-700">revealed</span>}
                 </td>
+                {showLabels && (
+                  <td className="px-4 py-3 text-xs whitespace-nowrap">
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700">{labelName(c.label)}</span>
+                  </td>
+                )}
                 <td className="px-4 py-3">
                   <div className="flex w-36 items-center gap-2">
                     <ScoreBar value={c.score.total} label={`Score ${c.score.total.toFixed(0)} of 100`} />

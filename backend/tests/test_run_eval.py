@@ -8,7 +8,7 @@ import re
 import pytest
 
 from app.config import Settings
-from app.models import CandidateEvaluation, JobRequirements, ParsedResume, RequirementVerdict
+from app.models import CandidateEvaluation, JobRequirementsDraft, ParsedResume, RequirementVerdict
 from app.services.gemini import GeminiService
 from eval import run_eval
 from tests.fakes import FAKE_REQS
@@ -39,7 +39,7 @@ def fake_world(tmp_path, monkeypatch):
             text = contents[0].inline_data.data.decode()
             parsed.profile.headline = f"marker {text.split('CAT=')[1].split()[0]} #{text.split('n=')[1]}"  # unique per resume
             return parsed
-        if schema is JobRequirements:
+        if schema is JobRequirementsDraft:
             return FAKE_REQS.model_copy(update={"role_title": contents.split("\n\n", 1)[1].split()[0]})
         calls["eval"] += 1
         role = re.search(r'"role_title": "([^"]+)"', contents).group(1)

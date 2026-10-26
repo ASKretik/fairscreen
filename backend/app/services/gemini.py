@@ -26,12 +26,15 @@ from app.blind import neutralise_pronouns
 from app.cache import DiskCache, sha256_hex
 from app.config import Settings
 from app.models import (
+    DEFAULT_TAG_WEIGHT,
     BlindProfile,
     CandidateEvaluation,
     JobRequirements,
+    JobRequirementsDraft,
     ParsedResume,
     Requirement,
     RequirementVerdict,
+    TagJudgement,
 )
 
 log = logging.getLogger("fairscreen.gemini")
@@ -40,6 +43,7 @@ log = logging.getLogger("fairscreen.gemini")
 PARSE_PROMPT_VERSION = "resume-v1"
 JD_PROMPT_VERSION = "jd-v1"
 EVAL_PROMPT_VERSION = "eval-v1"
+TAGS_PROMPT_VERSION = "tags-v1"
 
 EMBED_DIM = 768
 EMBED_MAX_CHARS = 6000  # the embedding model takes about 2,048 tokens
@@ -48,6 +52,7 @@ MAX_WAIT_S = 60.0
 MAX_MUST = 8
 MAX_NICE = 8
 MAX_EVIDENCE_WORDS = 20
+VERDICT_FIELDS = {"id", "text", "kind"}  # what the evaluator sees of a requirement
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -100,6 +105,23 @@ Rules:
 - For years-of-experience requirements, use the experience dates and months. Today is {_today()}.
 - `strengths`: up to 3 short phrases. `gaps`: up to 3 short phrases about missing or weak requirements.
 - `summary`: exactly two neutral sentences about fit for this role, with no names, no gendered pronouns and no demographics."""
+
+
+def _judge_tags_prompt() -> str:
+    return f"""You are checking an anonymised candidate profile against a library of screening tags.
+
+For EVERY listed tag, return exactly one verdict with its `req_id`:
+- "met": the profile shows clear evidence.
+- "partial": related or weaker evidence (an adjacent tool, fewer years than asked, coursework rather than work).
+- "not_met": no evidence in the profile.
+
+Rules:
+- `evidence`: at most 20 words pointing to specific profile content (a role, project, skill or education entry). Use an empty string when the verdict is "not_met".
+- Judge each tag on its own, only from what the profile shows. Do not assume skills that are not shown.
+- Do not use institution name or prestige. Education tags are judged by degree and field only; equivalent degrees count.
+- Do not infer or mention age, gender, ethnicity, nationality or any other demographic.
+- For years-of-experience tags, use the experience dates and months. Today is {_today()}.
+- `summary`: exactly two neutral sentences describing the candidate's background (not their fit for one role), with no names, no gendered pronouns and no demographics."""
 
 
 class GeminiError(RuntimeError):
@@ -178,12 +200,21 @@ def _neutral(text: str) -> str:
     return neutralise_pronouns(text)[0].strip()
 
 
-def normalise_requirements(req: JobRequirements) -> JobRequirements:
-    """Enforce the SPEC's limits and give IDs m1.. / n1.. in order, whatever the model returned."""
+def normalise_requirements(req: JobRequirements, reset_weights: bool = False) -> JobRequirements:
+    """Enforce the SPEC's limits and give IDs m1.. / n1.. in order, whatever the model returned.
+    Tag weights are kept, or set to the default with `reset_weights` (fresh AI extraction)."""
 
     def renumber(items: list[Requirement], prefix: str, limit: int) -> list[Requirement]:
         kept = [r for r in items if r.text.strip()][:limit]
-        return [Requirement(id=f"{prefix}{i}", text=r.text.strip(), kind=r.kind) for i, r in enumerate(kept, 1)]
+        return [
+            Requirement(
+                id=f"{prefix}{i}",
+                text=r.text.strip(),
+                kind=r.kind,
+                weight=DEFAULT_TAG_WEIGHT if reset_weights else r.weight,
+            )
+            for i, r in enumerate(kept, 1)
+        ]
 
     return req.model_copy(
         update={
@@ -299,15 +330,15 @@ class GeminiService:
         key = sha256_hex(f"{model}|{JD_PROMPT_VERSION}|{jd_text}")
         if self._jd_cache and (hit := self._jd_cache.get(key)):
             return JobRequirements.model_validate(hit)
-        req = await self._generate(
+        draft = await self._generate(
             model=model,
             contents=f"Job description:\n\n{jd_text}",
-            schema=JobRequirements,
+            schema=JobRequirementsDraft,
             system=PARSE_JD_PROMPT,
             temperature=0.0,
             limiter=self._parse_limit,
         )
-        req = normalise_requirements(req)
+        req = normalise_requirements(JobRequirements.model_validate(draft.model_dump()), reset_weights=True)
         if self._jd_cache:
             self._jd_cache.put(key, req.model_dump())
         return req
@@ -327,11 +358,12 @@ class GeminiService:
         )
 
     async def evaluate(self, profile: BlindProfile, requirements: JobRequirements) -> CandidateEvaluation:
-        """Takes a BlindProfile, which has no identity fields, so identity cannot reach the evaluator."""
+        """Takes a BlindProfile, which has no identity fields, so identity cannot reach the evaluator.
+        Tag weights are left out: they change the score, never the verdicts."""
         reqs = {
             "role_title": requirements.role_title,
-            "must_have": [r.model_dump() for r in requirements.must_have],
-            "nice_to_have": [r.model_dump() for r in requirements.nice_to_have],
+            "must_have": [r.model_dump(include=VERDICT_FIELDS) for r in requirements.must_have],
+            "nice_to_have": [r.model_dump(include=VERDICT_FIELDS) for r in requirements.nice_to_have],
         }
         contents = (
             f"Job requirements (JSON):\n{json.dumps(reqs, indent=1, ensure_ascii=False)}\n\n"
@@ -352,6 +384,36 @@ class GeminiService:
         if self._eval_cache:
             self._eval_cache.put(key, ev.model_dump())
         return align_evaluation(ev, requirements)
+
+    async def judge_tags(self, profile: BlindProfile, tags: list[Requirement]) -> TagJudgement:
+        """Demo builder only: one call judges the profile against every tag in the library.
+        Verdicts come back aligned to `tags` (missing ones count as not_met)."""
+        listed = [t.model_dump(include=VERDICT_FIELDS) for t in tags]
+        contents = (
+            f"Screening tags (JSON):\n{json.dumps(listed, indent=1, ensure_ascii=False)}\n\n"
+            f"Anonymised candidate profile (JSON):\n{profile.model_dump_json(indent=1)}"
+        )
+        model = self.settings.gemini_eval_model
+        key = sha256_hex(f"{model}|{TAGS_PROMPT_VERSION}|{contents}")
+        if self._eval_cache and (hit := self._eval_cache.get(key)):
+            out = TagJudgement.model_validate(hit)
+        else:
+            out = await self._generate(
+                model=model,
+                contents=contents,
+                schema=TagJudgement,
+                system=_judge_tags_prompt(),
+                temperature=0.0,
+                limiter=self._eval_limit,
+            )
+            if self._eval_cache:
+                self._eval_cache.put(key, out.model_dump())
+        aligned = align_evaluation(
+            CandidateEvaluation(must_have=out.verdicts, nice_to_have=[], strengths=[], gaps=[], summary=out.summary),
+            JobRequirements(role_title="tags", must_have=tags, nice_to_have=[],
+                            min_years_experience=None, education_requirement=None),
+        )
+        return TagJudgement(verdicts=aligned.must_have, summary=aligned.summary)
 
     async def embed(self, text: str) -> list[float]:
         """Unit-length embedding (output_dimensionality=768 vectors are not normalised by the API)."""

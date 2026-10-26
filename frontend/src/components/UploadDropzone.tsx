@@ -112,7 +112,7 @@ export function UploadDropzone({ remaining, locked, onUpload }: Props) {
         <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-700">
             <span className="font-semibold">{files.length}</span> PDF{files.length === 1 ? "" : "s"} ready ({sizeMb.toFixed(1)} MB)
-            {!locked && <span className="block text-xs text-slate-500">Requirements lock once screening starts.</span>}
+            {!locked && <span className="block text-xs text-slate-500">Tags lock once screening starts; their weights can still change.</span>}
           </p>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => setFiles([])} disabled={busy}>

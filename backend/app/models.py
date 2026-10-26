@@ -2,21 +2,38 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
+
+DEFAULT_TAG_WEIGHT = 3
+MIN_TAG_WEIGHT, MAX_TAG_WEIGHT = 1, 5
 
 
-class Requirement(BaseModel):
+class RequirementBase(BaseModel):
     id: str                      # "m1", "m2", ... / "n1", ...
     text: str                    # e.g. "3+ years of Python in production"
     kind: Literal["skill", "experience", "education", "certification", "other"]
 
 
-class JobRequirements(BaseModel):
+class Requirement(RequirementBase):
+    """One screening tag. `weight` (1–5) is its importance within its group (must-have or
+    nice-to-have); it is set by the recruiter and never sent to the evaluator."""
+
+    weight: int = Field(default=DEFAULT_TAG_WEIGHT, ge=MIN_TAG_WEIGHT, le=MAX_TAG_WEIGHT)
+
+
+class JobRequirementsDraft(BaseModel):
+    """Gemini's output schema for JD parsing: tags without weights."""
+
     role_title: str
-    must_have: list[Requirement]         # 3–8 items
-    nice_to_have: list[Requirement]      # 0–8 items
+    must_have: list[RequirementBase]     # 3–8 items
+    nice_to_have: list[RequirementBase]  # 0–8 items
     min_years_experience: float | None
     education_requirement: str | None
+
+
+class JobRequirements(JobRequirementsDraft):
+    must_have: list[Requirement]
+    nice_to_have: list[Requirement]
 
 
 class Identity(BaseModel):               # NEVER sent to the evaluator or the embedding
@@ -81,6 +98,13 @@ class CandidateEvaluation(BaseModel):
     summary: str                 # 2 sentences, no identity, no demographics
 
 
+class TagJudgement(BaseModel):
+    """Demo builder only: one profile judged against the whole tag library in one call."""
+
+    verdicts: list[RequirementVerdict]
+    summary: str                 # 2 neutral sentences describing the profile, not a fit for one role
+
+
 class ScoreBreakdown(BaseModel):
     must_have: float             # 0–1
     nice_to_have: float          # 0–1
@@ -105,3 +129,18 @@ class Weights(BaseModel):
         if abs(sum(values) - 1.0) > 1e-6:
             raise ValueError(f"weights must sum to 1 (got {sum(values):.4f})")
         return self
+
+
+class WeightsUpdate(Weights):
+    """PATCH /weights body: the group weights plus, optionally, new tag weights by requirement ID."""
+
+    tag_weights: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _check_tags(self) -> "WeightsUpdate":
+        if any(not MIN_TAG_WEIGHT <= w <= MAX_TAG_WEIGHT for w in self.tag_weights.values()):
+            raise ValueError(f"tag weights must be between {MIN_TAG_WEIGHT} and {MAX_TAG_WEIGHT}")
+        return self
+
+    def group_weights(self) -> Weights:
+        return Weights(must=self.must, nice=self.nice, semantic=self.semantic)
