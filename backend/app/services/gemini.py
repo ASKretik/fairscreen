@@ -144,9 +144,23 @@ class RateLimiter:
             await asyncio.sleep(start - now)
 
 
+def _is_daily_quota(exc: BaseException) -> bool:
+    """A 429 for a per-day quota: retrying within minutes can't succeed (it resets at midnight Pacific)."""
+    if not isinstance(exc, errors.APIError) or not isinstance(exc.details, dict):
+        return False
+    error = exc.details.get("error", exc.details)
+    for detail in (error.get("details") if isinstance(error, dict) else None) or []:
+        for v in (detail.get("violations") or []) if isinstance(detail, dict) else []:
+            if "PerDay" in str(v.get("quotaId", "")):
+                return True
+    return False
+
+
 def _is_retryable(exc: BaseException) -> bool:
     if isinstance(exc, errors.APIError):
         code = exc.code if isinstance(exc.code, int) else 0
+        if _is_daily_quota(exc):
+            return False
         return code == 429 or exc.status == "RESOURCE_EXHAUSTED" or code >= 500
     return isinstance(exc, httpx.TransportError)
 
@@ -179,6 +193,8 @@ def _log_retry(state: RetryCallState) -> None:
 
 def _describe(exc: errors.APIError) -> str:
     code, msg = exc.code, (exc.message or "").strip()
+    if _is_daily_quota(exc):
+        return "The daily Gemini free-tier quota for this model is used up; it resets at midnight Pacific time."
     if code == 429 or exc.status == "RESOURCE_EXHAUSTED":
         return "Gemini rate limit or free-tier quota reached. Wait a minute and retry."
     if code in (401, 403) or "API key" in msg:

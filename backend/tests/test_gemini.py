@@ -192,3 +192,16 @@ def test_judge_tags_aligns_verdicts_and_caches(tmp_path):
         assert [(v.req_id, v.verdict) for v in out.verdicts] == [("t1", "not_met"), ("t2", "met")]
         assert "She" not in out.summary
     assert calls["n"] == 1
+
+
+def test_daily_quota_is_not_retried_and_says_so():
+    daily = errors.APIError(429, {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED", "message": "quota", "details": [
+        {"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+         "violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier", "quotaValue": "20"}]},
+        {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "53124s"}]}})
+    assert not _is_retryable(daily)
+    assert _is_retryable(api_error(429, "RESOURCE_EXHAUSTED", retry_delay="7s"))  # per-minute: still retried
+    svc, models = service([daily])
+    with pytest.raises(GeminiError, match="daily Gemini free-tier quota"):
+        asyncio.run(svc.parse_jd("JD"))
+    assert models.calls == 1
