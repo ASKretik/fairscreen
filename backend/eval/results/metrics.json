@@ -1,0 +1,134 @@
+{
+  "created": "2026-10-26T16:44:37.520486+00:00",
+  "models": {
+    "parse": "gemini-3.5-flash-lite",
+    "eval": "gemini-3.5-flash-lite",
+    "embed": "gemini-embedding-001"
+  },
+  "seed": 42,
+  "pool_size": 30,
+  "per_category": 8,
+  "others": 6,
+  "weights": {
+    "must": 0.5,
+    "nice": 0.2,
+    "semantic": 0.3
+  },
+  "failures": 0,
+  "jds": {
+    "finance.txt": {
+      "category": "FINANCE",
+      "n_scored": 30,
+      "n_relevant": 8,
+      "methods": {
+        "semantic": {
+          "p@5": 0.8,
+          "p@10": 0.8,
+          "ndcg@10": 0.9782917460822231
+        },
+        "requirements": {
+          "p@5": 0.8,
+          "p@10": 0.8,
+          "ndcg@10": 0.9165542635924872
+        },
+        "combined": {
+          "p@5": 0.8,
+          "p@10": 0.8,
+          "ndcg@10": 0.9165542635924872
+        },
+        "combined_calibrated": {
+          "p@5": 0.8,
+          "p@10": 0.8,
+          "ndcg@10": 0.9165542635924872
+        }
+      }
+    },
+    "hr.txt": {
+      "category": "HR",
+      "n_scored": 30,
+      "n_relevant": 8,
+      "methods": {
+        "semantic": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 1.0
+        },
+        "requirements": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 1.0
+        },
+        "combined": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 1.0
+        },
+        "combined_calibrated": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 1.0
+        }
+      }
+    },
+    "information-technology.txt": {
+      "category": "INFORMATION-TECHNOLOGY",
+      "n_scored": 30,
+      "n_relevant": 8,
+      "methods": {
+        "semantic": {
+          "p@5": 1.0,
+          "p@10": 0.7,
+          "ndcg@10": 0.9202054614375518
+        },
+        "requirements": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 0.9963488021549354
+        },
+        "combined": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 0.9933222998814618
+        },
+        "combined_calibrated": {
+          "p@5": 1.0,
+          "p@10": 0.8,
+          "ndcg@10": 0.9933222998814618
+        }
+      }
+    }
+  },
+  "mean": {
+    "semantic": {
+      "p@5": 0.9333333333333332,
+      "p@10": 0.7666666666666666,
+      "ndcg@10": 0.966165735839925
+    },
+    "requirements": {
+      "p@5": 0.9333333333333332,
+      "p@10": 0.8000000000000002,
+      "ndcg@10": 0.9709676885824742
+    },
+    "combined": {
+      "p@5": 0.9333333333333332,
+      "p@10": 0.8000000000000002,
+      "ndcg@10": 0.9699588544913164
+    },
+    "combined_calibrated": {
+      "p@5": 0.9333333333333332,
+      "p@10": 0.8000000000000002,
+      "ndcg@10": 0.9699588544913164
+    }
+  },
+  "calibration": {
+    "n_pairs": 90,
+    "min": 0.729028681473144,
+    "max": 0.8973543546561078,
+    "p10": 0.7457171191658604,
+    "p50": 0.7679690371535831,
+    "p90": 0.8454210499870978,
+    "used_lo": 0.75,
+    "used_hi": 0.85,
+    "degenerate": false
+  }
+}

@@ -18,9 +18,10 @@ from app.models import (
     Weights,
 )
 
-# Bounds for rescaling raw cosine similarity to 0–1. SPEC §7.4 defaults; recalibrate
-# in Phase 5 from the 10th/90th percentiles of the eval pool's raw cosines.
-SEMANTIC_LO = 0.55
+# Bounds for rescaling raw cosine similarity to 0–1: the 10th/90th percentiles of the raw
+# cosines over the eval pool's 90 (JD, resume) pairs (Phase 5; SPEC defaults were 0.55/0.85).
+# See eval/results/ablation.md.
+SEMANTIC_LO = 0.75
 SEMANTIC_HI = 0.85
 
 

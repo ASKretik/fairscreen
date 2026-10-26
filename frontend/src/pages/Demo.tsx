@@ -23,7 +23,8 @@ export function Demo() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(publicUrl("demo/demo_pool.json"))
+    // Revalidate every time, so a rebuilt pool shows up at once instead of after the 10-minute cache.
+    fetch(publicUrl("demo/demo_pool.json"), { cache: "no-cache" })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<DemoPool>;

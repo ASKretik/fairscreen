@@ -23,6 +23,9 @@ def vectors_with_cosine(c: float) -> tuple[list[float], list[float]]:
     return [1.0, 0.0], [c, math.sqrt(1 - c * c)]
 
 
+MID = (SEMANTIC_LO + SEMANTIC_HI) / 2  # a cosine that rescales to exactly 0.5
+
+
 def test_coverage_formula():
     assert coverage([v("met"), v("partial"), v("not_met"), v("met")]) == pytest.approx(2.5 / 4)
     assert coverage([v("partial"), v("partial")]) == pytest.approx(0.5)
@@ -34,11 +37,11 @@ def test_coverage_is_one_with_no_requirements():
 
 
 def test_full_formula_with_default_weights():
-    jd, prof = vectors_with_cosine(0.70)  # semantic = (0.70 - 0.55) / 0.30 = 0.5
+    jd, prof = vectors_with_cosine(MID)  # semantic = 0.5
     s = score(evaluation(["met", "partial", "not_met", "met"], ["partial"]), jd, prof, Weights())
     assert s.must_have == pytest.approx(0.625)
     assert s.nice_to_have == pytest.approx(0.5)
-    assert s.semantic_raw == pytest.approx(0.70)
+    assert s.semantic_raw == pytest.approx(MID)
     assert s.semantic == pytest.approx(0.5)
     assert s.total == pytest.approx(100 * (0.5 * 0.625 + 0.2 * 0.5 + 0.3 * 0.5))
     assert s.missing_must_have is True
@@ -53,7 +56,7 @@ def test_zero_requirements_score_full_coverage():
 
 
 @pytest.mark.parametrize("cos, expected", [
-    (0.95, 1.0), (SEMANTIC_HI, 1.0), (0.70, 0.5), (SEMANTIC_LO, 0.0), (0.30, 0.0), (-0.5, 0.0),
+    (0.95, 1.0), (SEMANTIC_HI, 1.0), (MID, 0.5), (SEMANTIC_LO, 0.0), (0.30, 0.0), (-0.5, 0.0),
 ])
 def test_cosine_is_rescaled_and_clipped(cos, expected):
     assert rescale_cosine(cos) == pytest.approx(expected)
@@ -95,7 +98,7 @@ def test_missing_must_have_does_not_zero_the_score():
 
 def test_weights_default_and_custom():
     assert Weights().model_dump() == {"must": 0.5, "nice": 0.2, "semantic": 0.3}
-    jd, prof = vectors_with_cosine(0.7)
+    jd, prof = vectors_with_cosine(MID)
     ev = evaluation(["met", "not_met"], ["met"])
     s = score(ev, jd, prof, {"must": 1.0, "nice": 0.0, "semantic": 0.0})
     assert s.total == pytest.approx(50.0)
@@ -135,7 +138,7 @@ def test_tag_weights_shift_coverage():
 def test_score_and_rescore_use_tag_weights_without_touching_semantic():
     from app.scoring import rescore
 
-    jd, prof = vectors_with_cosine(0.70)
+    jd, prof = vectors_with_cosine(MID)
     ev = evaluation(["met", "not_met"], ["met"])
     s = score(ev, jd, prof, Weights(), {"m1": 4, "m2": 1})
     assert s.must_have == pytest.approx(0.8)
